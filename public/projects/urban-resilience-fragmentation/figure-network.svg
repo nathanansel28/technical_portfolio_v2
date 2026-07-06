@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="600" viewBox="0 0 1000 600">
+  <rect width="1000" height="600" fill="#f4f4f5"/>
+  <g stroke="#0f766e" stroke-width="2" fill="none" opacity="0.6">
+    <line x1="120" y1="120" x2="420" y2="220"/>
+    <line x1="420" y1="220" x2="700" y2="140"/>
+    <line x1="420" y1="220" x2="500" y2="440"/>
+    <line x1="500" y1="440" x2="800" y2="480"/>
+    <line x1="700" y1="140" x2="880" y2="300"/>
+    <line x1="500" y1="440" x2="200" y2="480"/>
+  </g>
+  <g fill="#0f766e">
+    <circle cx="120" cy="120" r="10"/>
+    <circle cx="420" cy="220" r="16"/>
+    <circle cx="700" cy="140" r="10"/>
+    <circle cx="500" cy="440" r="14"/>
+    <circle cx="800" cy="480" r="10"/>
+    <circle cx="880" cy="300" r="8"/>
+    <circle cx="200" cy="480" r="8"/>
+  </g>
+  <text x="500" y="560" font-family="Helvetica, Arial, sans-serif" font-size="20" fill="#52525b" text-anchor="middle">
+    Placeholder network diagram (e.g. road-network fragmentation analysis)
+  </text>
+</svg>
