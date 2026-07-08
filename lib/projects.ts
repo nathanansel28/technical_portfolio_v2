@@ -12,7 +12,12 @@ export type ProjectFrontmatter = {
   coverImage: string;
   tags: string[];
   summary: string;
+  draft?: boolean;
 };
+
+// Drafts are visible in `next dev` so you can preview them while writing,
+// but excluded from the grid and routes in production builds/deploys.
+const SHOW_DRAFTS = process.env.NODE_ENV !== "production";
 
 export type ProjectSummary = ProjectFrontmatter;
 
@@ -37,15 +42,19 @@ export function getAllProjects(): ProjectSummary[] {
       const raw = fs.readFileSync(path.join(PROJECTS_DIR, filename), "utf8");
       return matter(raw).data as ProjectFrontmatter;
     })
+    .filter((project) => SHOW_DRAFTS || !project.draft)
     .sort((a, b) => (a.dateStart > b.dateStart ? -1 : 1));
 }
 
 export function getAllSlugs(): string[] {
-  return getProjectFilenames().map((filename) => {
-    const raw = fs.readFileSync(path.join(PROJECTS_DIR, filename), "utf8");
-    const { data } = matter(raw);
-    return (data as ProjectFrontmatter).slug ?? filename.replace(/\.mdx$/, "");
-  });
+  return getProjectFilenames()
+    .map((filename) => {
+      const raw = fs.readFileSync(path.join(PROJECTS_DIR, filename), "utf8");
+      const data = matter(raw).data as ProjectFrontmatter;
+      return { filename, data };
+    })
+    .filter(({ data }) => SHOW_DRAFTS || !data.draft)
+    .map(({ filename, data }) => data.slug ?? filename.replace(/\.mdx$/, ""));
 }
 
 export function getProjectBySlug(slug: string): ProjectWithContent | null {
@@ -56,7 +65,10 @@ export function getProjectBySlug(slug: string): ProjectWithContent | null {
   });
 
   if (!match) return null;
-  return readProjectFile(match);
+
+  const project = readProjectFile(match);
+  if (project.draft && !SHOW_DRAFTS) return null;
+  return project;
 }
 
 const MONTHS = [
