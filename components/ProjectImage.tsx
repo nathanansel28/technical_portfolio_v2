@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Image from "next/image";
 
 export default function ProjectImage({
@@ -7,7 +8,7 @@ export default function ProjectImage({
 }: {
   src: string;
   alt: string;
-  caption?: string;
+  caption?: ReactNode;
 }) {
   return (
     <figure className="my-6">

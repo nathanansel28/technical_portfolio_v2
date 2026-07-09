@@ -55,7 +55,14 @@ export default async function ProjectPage({
       </div>
 
       <header className="flex flex-col gap-3">
-        <h1 className="text-3xl font-bold tracking-tight">{project.title}</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">{project.title}</h1>
+          {project.draft ? (
+            <span className="rounded-md bg-amber-100 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700">
+              Draft
+            </span>
+          ) : null}
+        </div>
         <p className="text-sm text-foreground/60">
           {formatDateRange(project.dateStart, project.dateEnd)}
         </p>
@@ -67,7 +74,11 @@ export default async function ProjectPage({
       </header>
 
       <article className="prose prose-neutral max-w-none prose-headings:font-semibold prose-a:text-foreground">
-        <MDXRemote source={project.content} components={mdxComponents} />
+        <MDXRemote
+          source={project.content}
+          components={mdxComponents}
+          options={{ blockJS: false }}
+        />
       </article>
     </main>
   );

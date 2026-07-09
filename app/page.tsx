@@ -13,10 +13,8 @@ export default function Home() {
         <div className="flex flex-col gap-4">
           <h1 className="text-3xl font-bold tracking-tight">Nathan Ansel</h1>
           <p className="max-w-2xl text-foreground/70">
-            Data scientist / AI engineer building end-to-end machine learning
-            systems — from data pipelines and modeling to the tools that make
-            results usable. This is a placeholder bio; replace it with a short
-            intro about your background and interests.
+            Aspiring data scientist and AI engineer with expertise in data analytics, machine learning, and statistical modelling. 
+            Proficient in Python and R, with a focus on developing efficient algorithms to acquire a deep understanding and effective utilization of complex data. 
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
             {SOCIAL_LINKS.map((link) => (
