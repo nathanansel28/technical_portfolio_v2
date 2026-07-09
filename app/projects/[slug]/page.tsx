@@ -74,7 +74,11 @@ export default async function ProjectPage({
       </header>
 
       <article className="prose prose-neutral max-w-none prose-headings:font-semibold prose-a:text-foreground">
-        <MDXRemote source={project.content} components={mdxComponents} />
+        <MDXRemote
+          source={project.content}
+          components={mdxComponents}
+          options={{ blockJS: false }}
+        />
       </article>
     </main>
   );
