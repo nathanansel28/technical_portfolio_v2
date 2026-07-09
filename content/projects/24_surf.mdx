@@ -5,7 +5,7 @@ dateStart: "2023-09"
 dateEnd: "2024-06"
 coverImage: "/projects/24_surf/cover.jpg"
 tags: ["Python", "R", "Computer Vision", "Machine Learning", "geopandas", "selenium", "openpyxl", "transbigdata", "osmnx", "cv2", "scipy", "matplotlib", "seaborn"]
-summary: "Modelled commuter mobility for 2 million Phnom Penh residents using kernel density estimation, backed by an automated Selenium/OpenCV traffic-vision pipeline processing 7,200 images/hour."
+summary: "Modeled commuter mobility for 2 million Phnom Penh residents using kernel density estimation, backed by an automated Selenium/OpenCV traffic-vision pipeline processing 7,200 images/hour."
 ---
 
 ## Highlights 
@@ -20,7 +20,21 @@ I worked with Nathan during research stint at the Centre and found him highly mo
 
 Strengthening Urban Resilience in the age of Fragmentation (SURF) is a research project kickstarted by the Lee Kuan Yew Centre for Innovative Cities (LKYCIC). The project aims to inform policymakers on (1) the likely impacts and tradeoffs when different transport electrification policies are implemented, and (2) the limits and potential of improving urban infrastructures that aim to encourage walking. 
 
-As an undergraduate research assistant under the Undergraduate Research Opportunity Programme (UROP) scheme, my role was to aid the team in developing new methodologies to collect and analyze data to complete the research. The following tasks were completed throughout my stint working with the team.
+As an **Undergraduate Research Assistant** under the Undergraduate Research Opportunity Programme (UROP) scheme, my role was to aid the team in developing new methodologies to collect and analyze data to complete the research. The following tasks were completed throughout my stint working with the team.
+
+Learn more about the project here: 
+
+<LinkCard
+  href="https://lkyspp.nus.edu.sg/centres/lee-kuan-yew-centre-for-innovative-cities/research/strengthening-urban-resilience-in-the-age-of-fragmentation"
+  title="Strengthening Urban Resilience in the Age of Fragmentation"
+  description=""
+/>
+
+<LinkCard
+  href="https://github.com/nathanansel28/UROP_SURF"
+  title="GitHub repository for SURF project"
+  description=""
+/>
 
 ### Scraping Traffic Data 
 
@@ -28,9 +42,28 @@ As an undergraduate research assistant under the Undergraduate Research Opportun
 The research team needed to extract useful traffic data to perform their analysis. My task was to scrape rush hour traffic data from the web for the city Phnom Penh (our area of research). 
 </mark>
 
-To solve this task, I created a Python program that captures screenshots of the road network from a map web application. Using selenium, Python opens a Chrome window, accesses Google Maps, keys in several information, and takes a screenshot (and the process repeats for every other road segment).
+To solve this task, I built a browser automation pipeline in Python using Selenium to programmatically drive a headless Chrome instance. The pipeline navigates a map web application, injecting the target coordinates for each road segment and capturing rendered map tiles as image frames. 
+
+<ProjectImage
+  src="/projects/24_surf/scrape_1.png"
+  alt=""
+  caption=""
+/>
 
 The program then analyzes the color-coded road network and extracts useful traffic information from it. The road network is color coded using unique colors according to traffic levels (blue for best traffic and dark red for worst traffic). Using cv2, we can identify what range of HSV values represent a certain traffic level, and this information was used to extract useful traffic data. I created a feature which enabled users to select a range of HSV values and a color filter will segment the image according to the given range of HSV values. 
+
+<ProjectImage
+  src="/projects/24_surf/scrape_2.png"
+  alt=""
+  caption=""
+/>
+<ProjectImage
+  src="/projects/24_surf/scrape_3.png"
+  alt=""
+  caption=""
+/>
+
+At scale, this pipeline captured and processed approximately **7,200 images per hour**, generating roughly **6 GB/hour** of structured traffic-flow data — enough throughput to support continuous rush-hour monitoring across the studied road network.
 
 ### Traffic Simulation Machine Learning
 
@@ -38,14 +71,31 @@ The program then analyzes the color-coded road network and extracts useful traff
 The team then needed to develop a simulation which models the daily movement of 2,000,000 Phnom Penh residents and the medium of transportation used in their travels. This was a challenging task as we needed to consider various factors that may affect a commuter's choice of medium transportation. 
 </mark>
 
-To solve this task, I implemented several **machine learning** techniques including **K-means clustering** (was not really successful) and **kernel density estimation** (which was successful). Kernel density estimation (KDE) is a method used to estimate the **probability density function** of a certain **probability distribution**. It is a powerful technique as it is able to capture not only univariate distributions but also multivariate ones.
+To solve this task, I implemented several **machine learning** techniques including **K-means clustering**, which struggled to capture the continuous, overlapping nature of commuter movement patterns, and **kernel density estimation (KDE)**, which better modeled the underlying **probability density function** of a certain **probability distribution**. KDE proved to be the more powerful technique here, as it is able to capture not only univariate distributions but also multivariate ones.
+
+<ProjectImage
+  src="/projects/24_surf/kde_1.png"
+  alt=""
+  caption=""
+/>
+
+<ProjectImage
+  src="/projects/24_surf/kde_2.png"
+  alt=""
+  caption={<>Source: <a href="https://en.wikipedia.org/wiki/Kernel_density_estimation">Wikipedia</a></>}
+/>
 
 To simulate the daily movements of Phnom Penh residents, we analyzed anonymized location data which has been collected by another party. The dataset consisted of 44,000 sample data points detailing the starting and ending locations of individuals throughout the day, their travel durations, speeds, and start times of their journeys. 
 
-As this dataset is a multivariate distribution, we can simply use the KDE to estimate its joint probability distribution function. Afterwards, we utilized the joint pdf generated through the KDE to simulate the movements of 2,000,000 Phnom Penh residents.
+As this dataset is a multivariate distribution, we can simply use the KDE to estimate its joint probability distribution function. Afterwards, we utilized the joint pdf generated through the KDE to simulate the movements of **2,000,000 Phnom Penh residents**.
+
+<ImageGrid
+  images={[
+    { src: "/projects/24_surf/kde_4.png", alt: "Joint KDE distribution of trip start latitude and longitude", caption: "Trip origins" },
+    { src: "/projects/24_surf/kde_3.png", alt: "Joint KDE distribution of trip end latitude and longitude", caption: "Trip destinations" },
+  ]}
+/>
 
 ### Impact
-The mobility simulation and traffic-flow datasets generated through this work 
-fed directly into LKYCIC's policy analysis on transport electrification and 
-walkability — helping quantify tradeoffs that inform sustainable urban transit 
-planning for Phnom Penh.
+
+The mobility simulation and traffic-flow datasets generated through this work fed directly into LKYCIC's policy analysis on transport electrification and walkability — helping quantify tradeoffs that inform sustainable urban transit planning for Phnom Penh.
