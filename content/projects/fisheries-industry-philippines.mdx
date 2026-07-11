@@ -41,6 +41,71 @@ The problem thus centers around: (1) finding the optimal number of fish to be de
 
 Indeed, this problem is a "Multi-Stage" Capacitated Facility Location Problem: each processing facility is a client to the fishing grounds, and each city is a client to the processing facilities.
 
+### Decision Variables
+
+- **x_fgi** — amount of fish *f*, in kg, caught from fishing ground *g* and sent for processing at facility *i* in a year.
+- **y_fij** — amount of fish *f*, in kg, sent from facility *i* to city *j* in a year.
+- **z_i** — binary: 1 if facility *i* is open, 0 otherwise.
+- **s_j** — government subsidy for city *j*, in Philippine Peso (PHP).
+
+### Objective Function
+
+The objective combines four components: maximizing total protein distributed, minus the total fishing cost, distribution cost (plus facility operating cost), and subsidy cost.
+
+```math
+\max Z = M \cdot Z_1 - Z_2 - Z_3 - Z_4
+```
+
+where `Z_1` is total protein distributed, `Z_2` is total fishing cost, `Z_3` is distribution cost plus facility operating cost, `Z_4` is total subsidies, and `M = 10^5` is a large weighting constant that prioritizes maximizing protein distribution over minimizing cost — a Big-M-style approach to combining a multi-objective problem into a single linear objective.
+
+### Constraints
+
+The model enforces 8 constraint families, several of which encode real domain assumptions rather than generic bounds:
+
+- **Non-negativity & integrality** — `x`, `y`, `s ≥ 0`; `z ∈ {0, 1}`.
+- **Fishing restriction** — each fishing ground has a legally mandated annual catch cap per fish species (Philippine fishing law).
+- **Processing capacity** — each facility can process at most its rated annual capacity.
+- **Protein consumption** — every city's population must receive protein within a health-recommended range, derived from Harvard Health Publishing guidance on daily protein intake:
+
+```math
+5{,}840 \cdot \rho_j \;\leq\; \sum_{f}\sum_{i} v_f \cdot y_{fij} \;\leq\; 43{,}800 \cdot \rho_j \qquad \forall j
+```
+
+  where `ρ_j` is the population of city *j* and `v_f` is the protein value of fish *f*. The lower bound assumes only 1/3 of a person's protein comes from fish, since people should draw protein from a diverse diet, not fish alone.
+- **Distribution capacity** — a facility cannot distribute more fish than it received (flow conservation).
+- **Budget** — a city's total fish spending can't exceed 15% of its aggregate GDP (a reasonable annual food-spending ceiling) plus any subsidy received.
+- **Fish & fishing-ground diversity** — no single fish species or fishing ground may account for more than 25% (or less than 2.5%) of total volume, to prevent over-reliance on any one species or overexploitation of any one ground.
+- **Facility opening** — ties the binary `z_i` to the continuous flow variables: if a facility is closed, it can receive or send zero fish. We used an *aggregated* big-M formulation here rather than constraining every individual `x_fgi` directly, since it requires only `|I|` constraints instead of `|F|×|G|×|I|` — a deliberate choice to keep the solver's constraint count (and thus solve time) manageable.
+
+## Data
+
+The model was parameterized with real 2021 data pulled from Philippine government and industry sources: the Philippines Fisheries Development Authority (PFDA), the Bureau of Fisheries and Aquatic Resources (BFAR), Statista, SimpleMaps, and Payscale, with a few gaps filled via randomization (fishing/transport costs fluctuated ±30% around their base value to simulate real-world variability; city GDP-per-capita was randomized within ±20–30% of the national figure based on each city's administrative status, due to unavailable ground-truth data).
+
+- **7 fish species** (Milkfish, Tilapia, Galunggong, Yellowfin Tuna, Indian Mackerel, Skipjack Tuna, Shrimp)
+- **16 fishing grounds** covering all Philippine seas
+- **~55 processing facilities** distributed across the islands
+- **100 cities** — the highest-population cities in the Philippines
+- Inter-node distances computed from real coordinates via the **Haversine formula** in Python
+
+<ProjectImage
+  src="/projects/fisheries-industry-philippines/network-map_01.png"
+  alt="Map of fishing grounds and processing facilities (left) and cities (right) used in the model, plotted across the Philippines"
+  caption="Fishing grounds & processing facilities (left) and cities (right) used in the model."
+/>
+
+## Results
+
+The model was solved to a **provably optimal** solution using GLPK: `Z* ≈ 1.023 × 10^17`, with a **0% relative optimality gap**, in about 117 seconds.
+
+Two results stood out as genuinely interesting:
+
+- **Every processing facility ended up open** (`z*_i = 1` for all `i`) — suggesting that, under this model, all facilities considered are worth operating to distribute fish nationally.
+- **Zero government subsidies were needed** (`s*_j = 0` for all `j`) — implying that, within the model's assumptions, the fisheries supply chain alone can meet the population's protein needs without further government support.
+
+## Limitations
+
+The Big-M weighting on protein maximization (`M = 10^5`) is a modeling convenience, not a principled choice — an arbitrary value for `M` can change which solution is optimal, and large constants can introduce numerical instability for the solver. Determining a more rigorous value (or an alternative multi-objective formulation, e.g. via weighted Pareto optimization) would be a natural next step.
+
 ## Area Covered
 
 <LinkCard
@@ -49,10 +114,9 @@ Indeed, this problem is a "Multi-Stage" Capacitated Facility Location Problem: e
   description=""
 />
 
-## Read the Complete Project Report here
+## Read the Complete Project Report
 
-<LinkCard
-  href="https://github.com/nathanansel28/40.002-Optimisation-1D/blob/main/40.002%20Optimisation%20-%201D%20Project%20Report%20-%20Nathan%20Ansel%2C%20Harrish%20Rahul%2C%20Isaiah%20Tugano%2C%20Lim%20Kyu%20Ha.pdf"
+<PdfEmbed
+  src="/projects/fisheries-industry-philippines/optimisation-project-report_01.pdf"
   title="40.002 Optimisation - 1D Project Report"
-  description=""
 />
