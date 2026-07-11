@@ -1,0 +1,32 @@
+---
+title: "Transportation Analytics"
+slug: "transportation-analytics"
+dateStart: "2024-08"
+dateEnd: "2024-08"
+coverImage: "/projects/transportation-analytics/cover.jpg"
+tags: ["Data & Business Analytics", "Machine Learning", "R"]
+summary: "Built discrete choice models (Multinomial Logit, Mixed Logit, Random Forest, XGBoost) in R to predict consumer trade-offs among vehicle safety-feature bundles, placing 2nd overall in a GM-sponsored competition."
+---
+
+## Overview
+
+Discrete choice models have been used extensively in many areas in economics, marketing, and transportation research. In this competition, we aim to predict the choice among bundles of safety features in cars. The choice-based conjoint data was collected by **General Motors** to understand consumer's trade-offs for various vehicle features.
+
+Our team developed multiple models in R such as Multinomial Logit, Mixed Logit, Random Forest, and XGBoost, validating model results on a private test set using a cross-entropy loss metric. We fine-tuned the model with hyperparameter grid search and introduced stacking techniques such as Meta-Learning to implement a soft-voting classifier, obtaining 2nd place overall.
+
+## Source Code
+
+<LinkCard
+  href="https://github.com/nathanansel28/tae-hackathon"
+  title="GitHub - nathanansel28/tae-hackathon"
+  description=""
+/>
+
+## Report
+
+<PdfEmbed
+  src="/projects/transportation-analytics/tae-competition-report_01.pdf"
+  title="40.016 TAE Competition Report"
+/>
+
+Alternatively, read the report here: [40.016 TAE Competition Report](https://github.com/nathanansel28/tae-hackathon/blob/main/40.016%20TAE%20Competition%20Report.pdf)

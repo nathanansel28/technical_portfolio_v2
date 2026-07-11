@@ -1,0 +1,58 @@
+---
+title: "Optimising the Fisheries Industry in the Philippines"
+slug: "fisheries-industry-philippines"
+dateStart: "2024-01"
+dateEnd: "2024-04"
+coverImage: "/projects/fisheries-industry-philippines/cover.jpg"
+tags: ["Julia", "Optimization", "Python"]
+summary: "Built a Mixed Integer Linear Program in Julia to optimize fish distribution and government subsidies across the Philippines' fishing supply chain."
+---
+
+## Highlights
+
+- Developed a mixed-integer linear program to solve a multi-objective optimisation problem.
+- The model was solved using Julia, particularly by using JuMP and GLPK as the solver.
+
+<LinkCard
+  href="https://github.com/nathanansel28/40.002-Optimisation-1D"
+  title="GitHub - nathanansel28/40.002-Optimisation-1D"
+  description="Contribute to nathanansel28/40.002-Optimisation-1D development by creating an account on GitHub."
+/>
+
+## Project Background
+
+Protein deficiency and poverty in the Philippines is a an alarming issue, especially among children and pregnant women. Limited access to protein-rich food contributes to malnutrition and stunted growth, affecting health and development while also worsening poverty in the long term. To tackle this issue, citizens of the Philippines have focused on catching fish as one of the ways to provide a more affordable source of protein. However, overfishing and inefficient resource allocation have compromised the steady and reliable supply of fish—and with it, protein—while also worsening the economic security of the people.
+
+> 💡 Thus, this project strives to create a Mixed Integer Linear Program (MILP) to address this issue. Our MILP is designed to find an optimal strategy to catch and distribute fish among the people so as to maximize the overall protein distribution while minimizing all associated costs.
+
+## Model Formulation
+
+The Philippines is one of the world's biggest archipelagos: it is made up of multiple islands interconnected by sea. As such, the Philippines is blessed with abundant natural resources from the sea, namely fish. However, a major challenge is posed in that this fish is not directly accessible to the people. For an ordinary person to consume fish, fish must be distributed through an intricate supply chain involving, from the very beginning, a fishing ground, and then a processing facility, and finally a city from where a person can directly buy fish. Consider the following diagram to illustrate this supply chain.
+
+<ProjectImage
+  src="/projects/fisheries-industry-philippines/supply-chain-diagram_01.png"
+  alt="Fish supply chain diagram from fishing ground to processing facility to city"
+  caption=""
+/>
+
+A major challenge faced in the fisheries industry is thus deciding how to distribute fish in the most logistically efficient manner. Evidently, there are various geographical obstacles that separate the ordinary fish consumer from the fishing grounds—be it sea or land or even other obstacles—and hence the goal of this project would to be figure out an optimal strategy to distribute the most amount of fish while incurring the least amount of cost possible.
+
+The problem thus centers around: (1) finding the optimal number of fish to be delivered from a fishing ground to a processing facility, (2) finding the optimal number of fish to be delivered from a processing facility to a city, (3) finding the optimal combination of facilities to be opened to ensure adequate fish processing capacity, and finally (4) finding the optimal amount of government subsidies required to provide access to fish consumption for the less fortunate—all while ensuring certain constraints are met.
+
+Indeed, this problem is a "Multi-Stage" Capacitated Facility Location Problem: each processing facility is a client to the fishing grounds, and each city is a client to the processing facilities.
+
+## Area Covered
+
+<LinkCard
+  href="https://www.google.com/maps/d/u/0/viewer?ll=11.013136082958686,122.28947008400735&z=6&mid=1bw187vU1-fm6rkBVRza3ookQgnkgVjw"
+  title="Area Covered — Google My Maps"
+  description=""
+/>
+
+## Read the Complete Project Report here
+
+<LinkCard
+  href="https://github.com/nathanansel28/40.002-Optimisation-1D/blob/main/40.002%20Optimisation%20-%201D%20Project%20Report%20-%20Nathan%20Ansel%2C%20Harrish%20Rahul%2C%20Isaiah%20Tugano%2C%20Lim%20Kyu%20Ha.pdf"
+  title="40.002 Optimisation - 1D Project Report"
+  description=""
+/>

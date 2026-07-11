@@ -1,0 +1,390 @@
+---
+title: "Food Security in Southeast Asia"
+slug: "food-security-southeast-asia"
+dateStart: "2023-09"
+dateEnd: "2023-12"
+coverImage: "/projects/food-security-southeast-asia/cover.jpg"
+tags: ["Machine Learning", "Python", "matplotlib", "pandas", "scikit-learn", "seaborn"]
+summary: "Built and iteratively refined multiple linear regression models predicting crop yield across 10 staple crops in Southeast Asia from environmental, economic, and political factors — awarded Best Project."
+---
+
+## About the Project
+
+Southeast Asia, despite its diversity, shares commonalities in agriculture due to its tropical climate and fertile soils. However, recent challenges such as climate change, rapid industrialization, and political instability **endanger food security in the region**, which serves as vital global supply hubs. Addressing this requires policymakers to consider environmental, economic, and political factors affecting crop growth, which in turn affects food security. Understanding these factors enables the formulation of policies conducive to optimal crop growth, taking into account local conditions. By aligning policies with these considerations, policymakers can enhance agricultural development and ensure food security for communities in Southeast Asia.
+
+To solve this problem, we developed a **multiple linear regression model** to predict the crop yield of various crop items given the environmental, economic, and political factors in a certain region.
+
+We systematically iterated our model over multiple crop items which are critical towards food security. While the task of evaluating multiple models is highly troublesome, we came up with a systematic way to automate this process. This system eases the troublesome evaluation process and enables us to implement our model over multiple crop items with ease.
+
+## How does the Model work?
+
+### <mark>What does the model do?</mark>
+
+The model predicts the crop yield (in g/ha) of certain crop items based on several independent variables. The crop items were selected based on their contribution towards food security in Southeast Asia, i.e. these crop items form the most common staple crops used as the primary energy source for multiple countries.
+
+**CROP ITEMS**
+
+Each crop item is assigned a key for ease of referencing (for example C1 for Maize).
+
+- C1: Maize (corn)
+- C2: Rice
+- C3: Wheat
+- C4: Cassava, fresh
+- C5: Soya beans
+- C6: Potatoes
+- C7: Sorghum
+- C8: Sweet potatoes
+- C9: Taro
+- C10: Green corn (maize)
+
+### <mark>What factors does the model consider?</mark>
+
+We identified several interesting features for our study. These factors range in three different aspects: environmental, economic, and political. Essentially, we want to consider how a country's environmental, economic, and political conditions affects its ability to produce a certain type of crop effectively (which will be measured by our target variable, the crop yield of the crop item).
+
+We assigned a unique key for each feature for ease of referencing. Factors starting with EC are economic factors, factors starting with EV are environmental factors, whereas factors starting with P are political factors.
+
+**ECONOMIC FACTORS**
+
+- **EC1: Cropland Area (hectares)** — [ourworldindata.org/grapher/cropland-area](https://ourworldindata.org/grapher/cropland-area)
+- **EC2: Purchasing Power Parity (International Dollars per Capita)** — [imf.org/external/datamapper/PPPPC](https://www.imf.org/external/datamapper/PPPPC@WEO/THA/IDN/PHL/VNM/KHM/LAO/MMR/SGP/BRN/MYS)
+- **EC3: Agriculture Share of GDP (%)** — [ourworldindata.org/grapher/agriculture-share-gdp](https://ourworldindata.org/grapher/agriculture-share-gdp)
+- **EC4: Government Expenditures on Agriculture (million USD)** — [fao.org/faostat](https://www.fao.org/faostat/en/#data/IG)
+
+**ENVIRONMENTAL FACTORS**
+
+- **EV1: Temperature (Celsius)** — Climate Knowledge Portal country pages for [Brunei](https://climateknowledgeportal.worldbank.org/country/brunei-darussalam), [Indonesia](https://climateknowledgeportal.worldbank.org/country/indonesia), [Singapore](https://climateknowledgeportal.worldbank.org/country/singapore), [Malaysia](https://climateknowledgeportal.worldbank.org/country/malaysia), [Myanmar](https://climateknowledgeportal.worldbank.org/country/myanmar), [Laos](https://climateknowledgeportal.worldbank.org/country/lao-pdr), [Philippines](https://climateknowledgeportal.worldbank.org/country/philippines), [Cambodia](https://climateknowledgeportal.worldbank.org/country/cambodia), [Thailand](https://climateknowledgeportal.worldbank.org/country/thailand), [Vietnam](https://climateknowledgeportal.worldbank.org/country/vietnam)
+- **EV2: Precipitation (mm per year)** — [data.worldbank.org/indicator/AG.LND.PRCP.MM](https://data.worldbank.org/indicator/AG.LND.PRCP.MM)
+- **EV3: Frequency of Natural Disasters (total number of natural disasters)** — [climatedata.imf.org](https://climatedata.imf.org/datasets/b13b69ee0dde43a99c811f592af4e821/explore)
+- **EV4: Carbon Emissions (tonnes CO2)** — [ourworldindata.org/co2-dataset-sources](https://ourworldindata.org/co2-dataset-sources)
+
+**POLITICAL FACTORS**
+
+- **P1: Government Effectiveness Index (-2.5 weak; 2.5 strong)** — [World Bank Worldwide Governance Indicators](https://databank.worldbank.org/source/worldwide-governance-indicators/Series/GE.EST)
+- **P2: Political Stability Index (-2.5 weak; 2.5 strong)** — [World Bank Worldwide Governance Indicators](https://databank.worldbank.org/source/worldwide-governance-indicators/Series/PV.EST)
+
+Altogether, these factors serve as the independent variables to our machine learning model.
+
+### <mark>Multiple Linear Regression</mark>
+
+The model was also based on **multiple linear regression**, which predicts crop yield by the following equation:
+
+```math
+\text{Crop Yield} = \beta_1x_1 + \beta_2x_2 + \beta_3x_3 + ... + \beta_nx_n
+```
+
+where
+
+```math
+x_1, x_2, ..., x_n
+```
+
+represent the value of each dependent variable and
+
+```math
+\beta_1, \beta_2, ..., \beta_n
+```
+
+represent the coefficient of each dependent variable (which represents how significant each feature's contribution towards crop yield is).
+
+### <mark>How was the model trained?</mark>
+
+Our goal now is to find the values of
+
+```math
+\beta_1, \beta_2, ... \beta_n
+```
+
+which enables us to predict crop yield while producing the least amount of error. This process is called model training.
+
+The model was trained by utilizing an algorithm known as **gradient descent**. To run the algorithm, we set up a cost function which measures the total error in the ML model's predictions; that is, the cost function measures how badly our predictions deviate from the actual values. The **gradient descent algorithm** minimizes this cost function through a series of iterations and finds the optimal solution.
+
+By finding the optimal solution, the gradient descent algorithm essentially finds the best possible values of
+
+```math
+\beta_1, \beta_2, ... \beta_n
+```
+
+which predicts crop yield effectively.
+
+<ProjectImage
+  src="/projects/food-security-southeast-asia/gradient-descent-illustration_01.png"
+  alt="Illustration of gradient descent converging toward a minimum"
+  caption={<>Illustration of Gradient Descent, from <a href="https://en.wikipedia.org/wiki/Gradient_descent">Wikipedia</a></>}
+/>
+
+## Highlights
+
+### <mark>Data Visualization</mark>
+
+Before performing data analysis, one must understand the nature of the data first. As such, we created several visualization tools to summarize general characteristics of our data. Click on the image to zoom in.
+
+<ImageGrid
+  images={[
+    { src: "/projects/food-security-southeast-asia/yield-rice-by-country_01.png", alt: "Scatter plot of rice yield over time across Southeast Asian countries" },
+    { src: "/projects/food-security-southeast-asia/yield-top-crops-vietnam_01.png", alt: "Scatter plot of yield for the top 5 crop items in Vietnam over time" },
+  ]}
+/>
+
+<ProjectImage
+  src="/projects/food-security-southeast-asia/agriculture-gdp-share_01.png"
+  alt="Line chart of agriculture, forestry, and fishing value added as a percentage of GDP across countries"
+  caption=""
+/>
+
+### <mark>Gradient Descent</mark>
+
+<ProjectImage
+  src="/projects/food-security-southeast-asia/cost-function-crops_01.png"
+  alt="Cost function convergence curves for each crop item over training iterations"
+  caption="The gradient descent minimizes the cost function as the number of iteration increases."
+/>
+
+### <mark>Model Evaluation</mark>
+
+To evaluate the model's accuracy, some metrics were used such as R-squared, adjusted R-squared, and Mean Squared Error (MSE). The adjusted R-squared explains how well the model predicts the crop yield values, whereas the mean squared error explains the average of the squares of the errors.
+
+In addition, to evaluate the significance of the model and each feature used, we introduced the F-test and the t-test. In short, the F-test evaluates the model significance, whereas the t-test evaluates the feature's significance in the model. A good model will have a high adjusted R-squared value, low MSE value, and high F-test value. Meanwhile, a significant feature will have a high t-test value.
+
+To better understand the metrics, we visualized the metrics using the following charts.
+
+<ProjectImage
+  src="/projects/food-security-southeast-asia/model-eval-metrics-validation_01.png"
+  alt="Bar chart of R-squared, adjusted R-squared, and MSE per crop on the validation dataset"
+  caption=""
+/>
+
+<ProjectImage
+  src="/projects/food-security-southeast-asia/model-eval-ttest-validation_01.png"
+  alt="Bar chart of t-test results per feature and crop on the validation dataset"
+  caption=""
+/>
+
+<ProjectImage
+  src="/projects/food-security-southeast-asia/model-eval-ftest-validation_01.png"
+  alt="Bar chart of F-test results per crop on the validation dataset"
+  caption=""
+/>
+
+<ProjectImage
+  src="/projects/food-security-southeast-asia/feature-significance-model1_01.png"
+  alt="Table indicating which features are statistically significant for model 1, by crop"
+  caption=""
+/>
+
+### <mark>Improving the Model</mark>
+
+It was clear that some models needed extra tweaking and improvement. We therefore attempted to improve the model by: (1) eliminating crop item models which have a weak model significance (negative F-test value, usually due to the lack of data), and (2) eliminating insignificant features from every model. Features are considered weak when their t-test value is lower than the t-critical value; that is, the minimum t-test value such that the feature would theoretically play a significant role in the model.
+
+After performing these tweaks, we evaluated the improved model using the same metrics.
+
+<ProjectImage
+  src="/projects/food-security-southeast-asia/model-eval-metrics-test_01.png"
+  alt="Bar chart of R-squared, adjusted R-squared, and MSE per crop on the test dataset"
+  caption=""
+/>
+
+<ProjectImage
+  src="/projects/food-security-southeast-asia/model-eval-ttest-test_01.png"
+  alt="Bar chart of t-test results per feature and crop on the test dataset"
+  caption=""
+/>
+
+<ProjectImage
+  src="/projects/food-security-southeast-asia/model-eval-ftest-test_01.png"
+  alt="Bar chart of F-test results per crop on the test dataset"
+  caption=""
+/>
+
+<ProjectImage
+  src="/projects/food-security-southeast-asia/feature-significance-model2_01.png"
+  alt="Table indicating which features are statistically significant for model 2, by crop"
+  caption=""
+/>
+
+### <mark>Comparing the Model</mark>
+
+After tweaking the model, one question stands: does the improved model perform better than the original model, according to the metrics? To answer this, we plotted the following tables and added color-coding for ease of analysis.
+
+<ImageGrid
+  images={[
+    { src: "/projects/food-security-southeast-asia/colormap-model1-evaluation_01.png", alt: "Color-coded table of R-squared, adjusted R-squared, and MSE for model 1" },
+    { src: "/projects/food-security-southeast-asia/colormap-model2-test_01.png", alt: "Color-coded table of R-squared, adjusted R-squared, and MSE for model 2 test results" },
+  ]}
+/>
+
+<ProjectImage
+  src="/projects/food-security-southeast-asia/model-comparison-change-table_01.png"
+  alt="Table of changes in R-squared, adjusted R-squared, MSE, and F-value between model 1 and model 2, by crop"
+  caption=""
+/>
+
+Overall, for crops in which the model is not a good fit, it could be caused in part due to a few reasons:
+
+1. Other potential variables which affect crop growth were not included in the model (due data not being published/accessible).
+2. Some significant variables may not be quantifiable, which prevents us from effectively modelling these factors, resulting in a significant portion of crop growth not being accounted for.
+
+See the complete review for each crop item below.
+
+**C1: Maize (corn)**
+
+- Old Model
+  - Adjusted R-squared: 0.593427
+  - F-value: 9.136121
+- New Model
+  - Adjusted R-squared: -0.355080
+  - F-value: 10.416682
+
+For C1, the improved model has an exceedingly low adjusted R-squared value compared to the first model despite scoring slightly better in the F-test. Unfortunately, the worsening of the adjusted R-squared score in the improved model outweights the improvement brought by the F-test value. Thus, the improved model for C1 is not better overall than its first model.
+
+The improved model's high F-value suggest that there is a model significance for C1, but its low adjusted R-squared value suggests that the model's ability to explain variance in the dependent variable is limited, possibly due to the inclusion of less relevant predictors (or the exclusion of relevant predictors).
+
+In any case, the first model is more effective in modelling C1 due to its excellent R-squared and F-test values.
+
+**C2: Rice**
+
+- Old Model
+  - Adjusted R-squared: 0.700410
+  - F-value: 14.576579
+- New Model
+  - Adjusted R-squared: 0.563660
+  - F-value: 11.460389
+
+For C2, the improved model did not perform well compared to the first model. This is because both the adjusted R-squared and F values decreased compared to the first model.
+
+However, both models actually achieved impressive adjusted R-squared and F values (between 0.6-0.7 and 11-14 respectively). Thus, both models are capable of modelling the crop yield of rice, except that the first model performs slightly better.
+
+This is possibly due to the removal of some significant regressors in the second model (despite scoring t-test values which were lower than the t-critical value). This shows that the method implemented in improving the model might not have been the most effective, especially for rice.
+
+**C3: Wheat**
+
+- Old Model
+  - Adjusted R-squared: 3.268034
+  - F-value: -0.329001
+
+Due to wheat's small dataset size, the F value was negative in the 1st model. `n-k < 0` for wheat, such that the F-test value took a negative value. A negative F-test value does not make sense statistically, and as such, we did not train this model any further. No matter what we try, it's not possible to improve this model due to the exceedingly limiting dataset size.
+
+**C4: Cassava, fresh**
+
+- Old Model
+  - Adjusted R-squared: 0.680337
+  - F-value: 12.458795
+- New Model
+  - Adjusted R-squared: 0.496495
+  - F-value: 12.109130
+
+Cassava displayed a similar behaviour to rice. Both its adjusted R² and F values slightly decreased in the new model, and thus we can conclude that the new model does not perform as well as the initial model.
+
+In any case, both models scored impressive adjusted R-squared and F values (between 0.55-0.75 and about 12 respectively). Thus, our model is capable of effectively modelling the yield of cassava.
+
+**C5: Soya beans**
+
+- Old Model
+  - Adjusted R-squared: -0.769692
+  - F-value: 2.307616
+- New Model
+  - Adjusted R-squared: 0.076756
+  - F-value: 4.045147
+
+Based on the exceedingly low adjusted R-squared and F-test values, both new and old models are incapable of effectively modelling C5 soya beans.
+
+While the new model improved in both the adjusted R-squared and F values, the adjusted R-squared values of the new model are still lower than what is required for an effective model. While the new model is preferable compared to the old model, the metrics suggests that more changes are needed to further improve the model. This could be because our model failed to take into other factors into account.
+
+**C6: Potatoes**
+
+- Old Model
+  - Adjusted R-squared: 0.362342
+  - F-value: 2.643496
+- New Model
+  - Adjusted R-squared: -0.002695
+  - F-value: 1.121278
+
+The new model performed worse than the original model in both the adjusted R-squared and F-test values. This means that the old model is more effective than the improved one. In any case, the old model cannot be said to be very effective. The F-test value may be acceptable, but its low adjusted R-squared value is a cause for concern.
+
+Thus, it can be concluded that more have to be done to improve the model for C6 potatoes.
+
+**C7: Sorghum**
+
+- Old Model
+  - Adjusted R-squared: -1.856949
+  - F-value: 0.833780
+- New Model
+  - Adjusted R-squared: -0.060492
+  - F-value: 3.015617
+
+Both new and improved models performed the worse compared to every other model. Since the improved model achieved an acceptable F-test value, this shows that the model has some level of overall significance. However, both new and old model scored a negative adjusted R-squared value, which shows that the model is highly limited in terms of its ability to explain the variance of its dependent variable (crop yield).
+
+Thus, the model cannot be used effectively to model C7 sorghum.
+
+**C8: Sweet potatoes**
+
+- Old Model
+  - Adjusted R-squared: 0.629864
+  - F-value: 10.976660
+- New Model
+  - Adjusted R-squared: 0.507512
+  - F-value: 10.693085
+
+Both new and old models performed well in terms of both the adjusted R-squared and F-test values. Unfortunately, the new model did not perform as well as the old model. This was because we removed several regressors (whose t-test values were lower than the t-critical values). This shows that to improve the model, one might have to include other regressors than removing the existing regressors.
+
+**C9: Taro**
+
+- Old Model
+  - Adjusted R-squared: 0.670252
+  - F-value: 6.694884
+
+The old model performs very well in terms of the adjusted R-squared and F-test values. However, when performing the t-test analysis, we noticed that 8 out of the 10 features analysed did not score a sufficient t-test value. Thus, this means that even though the model models the yield of taro effectively, most of the features analyzed did not have much of a significance towards the yield of taro.
+
+We did not train the model any further because removing 8 features out of the model would mean that there would be too few features to train on. A possible improvement to this model would involve the inclusion of additional regressors which may have a statistical significance towards the yield of taro.
+
+**C10: Green corn (maize)**
+
+- Old Model
+  - Adjusted R-squared: 0.843302
+  - F-value: 12.867019
+- New Model
+  - Adjusted R-squared: -0.116156
+  - F-value: 1.715241
+
+The new model performed worst than the original model in both the adjusted R-squared and F-test values. This means that the old model is highly more effective than the improved one.
+
+In any case, the old model is highly effective in modelling the yield of green corn, based on its exceedingly high adjusted R-squared and F-test values.
+
+## Results
+
+### <mark>**Model Effectiveness**</mark>
+
+For ten important crops, we created initial linear regression models by selecting ten independent variables (i.e. features) across a range of political, economic, and environmental factors and plotting them against the crop yield. By identifying and selecting all statistically significant variables with the t-test analysis, we then refined each model further.
+
+Our analysis suggested that the first model successfully models 6 crops with high effectiveness and 1 crop with mild effectiveness. One crop item lacked data to form an effective model, whereas the last crop was not modelled effectively at all. Overall, however, model 1 consistently scored high adjusted R-squared and F-test values. This means that, in general, model 1 has a high model significance while having the satisfactory ability to explain the variance of its dependent variables.
+
+Interestingly, our refinement process worsened results for model 2, possibly because some variables removed actually did have an effect on crop yield. This was because model 2 had a lot of its features removed after the t-test analysis was done. It appears that, while some features do not pass the t-test, they might have missed the t-critical value by a very slight margin (thus they were removed despite possibly having a decent level of significance). This finding is supported by the fact that, upon removing these seemingly insignificant features, there was almost always a constant drop in the adjusted R-squared and F-test values across multiple crop items. In other words, the absence of these features were highly consequential to the model's effectiveness.
+
+Thus, while model 2 was not the best improvement of model 1, it does help us in confirming that multiple features in model 1 were of a considerable level of statistical significance. Model 2 also confirms that model 1 has been performing decently well after all.
+
+### <mark>**Statistical Significance of Features**</mark>
+
+After performing a t-test analysis, we found that some features consistently affected crop yield (EV2, EV3, P1, P2); others affected crop yield significantly for some crops but not for others (EC2, EC3, EC4, EV1); whereas a feature did not make any difference at all (EC1). These findings are insightful as they reveal the significance (or lack thereof) of a feature towards the yield of a crop item.
+
+### <mark>**Final Words**</mark>
+
+Room for improvement to these models certainly remains (adding other omitted variables, performing hyper-parameter tuning, etc.). Nevertheless, our models may yet act as precedent for the construction of similar models for other crops, which would likewise be subject to iterative refinement, while also accounting for a wide range of variables which affect crop yield. It is hoped that our project will aid policymakers, agricultural producers, and other stakeholders alike to make strategic and effective decisions with regard to crop production and supply chains, in order to maintain food security for all in Southeast Asia.
+
+## Best Project Award
+
+After weeks of hard work, our project was awarded the best project for [....].
+
+## Role in this Project
+
+### <mark>Team Leader</mark>
+
+As the team leader, I served the role of a project manager by setting our objectives and coordinating the group's efforts. I was also responsible over the quality control over each aspect of the project, be it the code or other deliverables.
+
+### <mark>Tech Lead</mark>
+
+I was also the tech lead in this project, developing the framework of the program while ensuring quality control over each aspect of the code. Furthermore, as tech lead, I also spearheaded the creation of an automated system to streamline our model evaluation.
+
+## Key Learning Points
+
+- It takes large amounts of data to train a model effectively. This project could be improved by collecting a larger amount of data.
+- Our model is very effective in considering how different economic, environmental, and geographic features affect crop yield differently depending on the crop item. This helps to effectively inform policymakers what environmental, economic, and political features are relevant to pushing the growth of a certain crop item.
+- Due to the nature of the project, each crop item's equation could not be fine tuned to the level of perfection. This was a downside of the project which could be improved through further research.
