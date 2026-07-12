@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { FaLink } from "react-icons/fa";
 import { getOgImage } from "@/lib/og-image";
 
 export default async function LinkCard({
@@ -27,11 +28,15 @@ export default async function LinkCard({
         ) : null}
         <p className="mt-1 truncate text-[11px] text-foreground/40">{hostname}</p>
       </div>
-      {image ? (
-        <div className="relative hidden w-48 shrink-0 sm:block">
+      <div className="relative hidden w-48 shrink-0 sm:block">
+        {image ? (
           <Image src={image} alt="" fill unoptimized className="object-cover" />
-        </div>
-      ) : null}
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-black/[.03] text-foreground/25">
+            <FaLink size={20} />
+          </div>
+        )}
+      </div>
     </a>
   );
 }
