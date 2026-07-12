@@ -1,0 +1,94 @@
+---
+title: "Transportation Analytics"
+slug: "transportation-analytics"
+dateStart: "2024-08"
+dateEnd: "2024-08"
+coverImage: "/projects/24_tae/cover.jpg"
+tags: ["Data & Business Analytics", "Machine Learning", "R"]
+summary: "Built discrete choice models (MNL, Random Forest, XGBoost) in R, combined via a soft-voting ensemble, to predict consumer trade-offs among vehicle safety-feature bundles — placing 1st runner-up in a GM-sponsored data competition."
+---
+
+## Overview
+
+Discrete choice models have been used extensively in many areas in economics, marketing, and transportation research. In this competition, we aim to predict the choice among bundles of safety features in cars. The choice-based conjoint data was collected by **General Motors** to understand consumer's trade-offs for various vehicle features.
+
+Our team of 4 developed both classical discrete-choice models and modern ML methods in R — Multinomial Logit (MNL), Random Forest, and XGBoost — validated with 5-fold cross-validation and combined via a weighted soft-voting ensemble. Across 15 submissions, this placed us **1st runner-up (2nd overall)** on the competition's leaderboard.
+
+<ProjectImage
+  src="/projects/24_tae/kaggle_leaderboard.png"
+  alt="Kaggle leaderboard"
+  caption=""
+/>
+
+
+<LinkCard
+  href="https://github.com/nathanansel28/tae-hackathon"
+  title="GitHub - nathanansel28/tae-hackathon"
+  description=""
+/>
+
+## Methodology
+
+### Discrete Choice Theory
+
+The main reference for interpreting the data was Mishra, Natarajan et al.'s paper on marginal distribution choice models, which also highlighted feature engineering via one-hot encoding and feature selection via parameter significance. We tested three classical models to capture consumer taste heterogeneity: **Nested Logit** (relaxes the Independence of Irrelevant Alternatives assumption) and **Mixed Logit** (models random taste variation across consumers), alongside the simpler **MNL** which assumes consumer homogeneity. All three performed similarly, so we selected MNL for its simplicity and comparable log-loss.
+
+We one-hot encoded the safety features (since feature levels aren't inherently ordered) and avoided the dummy variable trap by dropping one level per categorical variable. This paid off concretely: several encoded levels (e.g. `AF3`, `BU6`) turned out statistically insignificant while other levels of the *same* feature were significant — information a non-encoded model would have missed. The final MNL model removed 21 such insignificant variables.
+
+### Boosting — XGBoost
+
+We chose XGBoost over alternatives like AdaBoost, CatBoost, and LightGBM for its computational efficiency and ease of tuning. Feature engineering removed three groups of variables before training: task/case/number indices (uninformative row identifiers), redundant demographic categoricals (already represented as encoded indices elsewhere), and all "choice 4" (no selection) indicator features, which are always zero by construction.
+
+Hyperparameters were tuned via a self-implemented grid search (rather than a built-in one, so we could track our own log-loss/accuracy/overfitting metrics directly), fine-tuning number of trees, learning rate (`eta`), max tree depth, minimum loss reduction (`gamma`), and L2 regularization (`lambda`) — each evaluated for its own overfitting/underfitting trade-off. 5-fold cross-validation was used throughout to keep tuning decisions consistent across folds.
+
+<ProjectImage
+  src="/projects/24_tae/xgboost-importance_01.png"
+  alt="Bar chart of XGBoost feature importance, dominated by the three Price variables"
+  caption="XGBoost feature importance — the three Price levels dominate."
+/>
+
+### Bagging — Random Forest
+
+Our Random Forest model used the same encoded safety features plus 11 alternative-specific effects (e.g. income, age, region, park access), for 71 predictor variables in total. We tuned `mtry` (variables considered per split) to 16 via `tuneRF()` — double the default of 8 — and swept `ntree` from 500–700, settling on 500 as the best balance between capturing enough signal and avoiding overfitting on a large dataset.
+
+### Stacking — Soft Voting Classifier
+
+Rather than layering a meta-learner on top of the three base models (a classic stacking approach), we deliberately chose a simpler **soft voting classifier**: a weighted geometric mean of the XGBoost, MNL, and RF predicted probabilities. We preferred this over an additional meta-learner because model complexity increases while interpretability decreases, with no guarantee the meta-learner generalizes to unseen data. Ensemble weights were tuned via an exhaustive grid search: increasing the XGBoost or RF weight consistently *decreased* log-loss, while increasing the MNL weight *increased* it — so the final ensemble weighted XGBoost highest, followed by RF, then MNL.
+
+## Results
+
+We made 15 submission attempts overall, tracking train/test log-loss locally alongside the competition's public and private leaderboard scores. A key lesson: extremely low log-loss on its own wasn't a reliable signal — one high-variance model scored well on training data but poorly on both leaderboards (overfitting), while another with a small train/test gap still underperformed because its log-loss was high from the start. The strongest submissions — the soft-voting ensembles — balanced both minimizing log-loss *and* keeping the train/test gap small.
+
+## Interpretability
+
+Beyond raw predictive performance, we spent real effort interpreting what each model learned:
+
+- **MNL coefficients** are directly interpretable: positive coefficients mean a feature is desirable to customers, negative means undesirable — unsurprisingly, price carries a negative coefficient while most safety features are positive.
+- **Random Forest variable importance** (via `varImp()`) showed the three Price levels far outweighing every other feature, followed by alternative-specific effects like income and age.
+
+<ProjectImage
+  src="/projects/24_tae/rf-importance_01.png"
+  alt="Dot charts of Random Forest variable importance by Mean Decrease Accuracy and Mean Decrease Gini, both dominated by Price"
+  caption="Random Forest variable importance — Mean Decrease Accuracy (left) and Mean Decrease Gini (right)."
+/>
+
+- **SHAP values** on the XGBoost model confirmed the same story from a different angle: regardless of which package a customer chose, its Price feature was consistently the most influential factor in that decision.
+
+<ImageGrid
+  columns={2}
+  images={[
+    { src: "/projects/24_tae/shap-choice1_01.png", alt: "SHAP importance plot for customers who chose package 1, dominated by Price1" },
+    { src: "/projects/24_tae/shap-choice2_01.png", alt: "SHAP importance plot for customers who chose package 2, dominated by Price2" },
+  ]}
+/>
+
+## Limitations & Further Research
+
+Our self-implemented grid search was time-consuming given the large hyperparameter space, and is prone to overfitting the training set even with cross-validation. Bayesian optimization (e.g. via `ParBayesianOptimization` or `MlBayesOpt` in R) would likely search the space more efficiently. We also deliberately scoped out deep learning approaches in favor of theory-grounded choice models and Kaggle-proven ML methods — but with access to larger discrete-choice datasets, DL methods capable of learning hidden distributions beyond what classical choice models can capture are a promising direction for future work.
+
+## Report
+
+<PdfEmbed
+  src="/projects/24_tae/tae-competition-report_01.pdf"
+  title="40.016 TAE Competition Report"
+/>

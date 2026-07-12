@@ -10,6 +10,7 @@ A personal technical portfolio site replacing a previous Notion-API-based build 
 - **Tailwind CSS** (v4) for styling, plus **@tailwindcss/typography** for the `prose` classes that style rendered MDX body content
 - **gray-matter** for frontmatter parsing
 - **react-icons** for the floating social icon buttons (not `lucide-react` — it dropped brand/logo icons like GitHub/LinkedIn)
+- **remark-math** + **rehype-katex** (+ `katex` for the stylesheet) for LaTeX math rendering in MDX body content — see "Math Rendering" below
 - Deployment target: **Vercel** (static export where possible)
 
 Do not reintroduce Notion, react-notion-x, or any third-party CMS API. All content must be local files.
@@ -65,8 +66,8 @@ Delete the `draft` line (or set it to `false`) when ready to publish — no othe
 
 Build these once, then use them freely inside any project `.mdx` file:
 
-- `<ProjectImage src="" alt="" caption="" />` — responsive, optimized image with optional caption. `caption` accepts plain text or a JSX expression (e.g. `caption={<>Source: <a href="...">Wikipedia</a></>}`) if you need a link inside it.
-- `<ImageGrid images={[{ src, alt, caption? }, ...]} columns={2|3} />` — side-by-side images/collage (e.g. before/after, multi-panel figures). Each cell uses `object-contain` (never crops) inside a `not-prose` wrapper.
+- `<ProjectImage src="" alt="" caption="" fullBleed />` — responsive, optimized image with optional caption. `caption` accepts plain text or a JSX expression (e.g. `caption={<>Source: <a href="...">Wikipedia</a></>}`) if you need a link inside it. `fullBleed` (optional, default `false`) breaks the image out of the article's text column to span the full viewport width — use for wide screenshots/dashboards where the extra width helps readability. Pass a number instead of `true` (e.g. `fullBleed={90}`) to bleed to that percentage of the viewport width instead of the full 100 — still centered on the viewport regardless of the article's own max-width.
+- `<ImageGrid images={[{ src, alt, caption? }, ...]} columns={2|3} caption="" captionSpacing="" fullBleed />` — side-by-side images/collage (e.g. before/after, multi-panel figures). Each cell uses `object-contain` (never crops) inside a `not-prose` wrapper. Per-image `caption` (inside each `images[]` entry) renders under that individual cell; the top-level `caption` prop instead renders one caption for the whole grid, below all the images — the two are independent and either/both may be used. `captionSpacing` (optional, default `"mt-3"`) is a raw Tailwind margin-top class controlling the gap between the grid and the whole-grid `caption`; override it (e.g. `captionSpacing="mt-1"`) to tighten that gap on a per-instance basis. `fullBleed` (optional, default `false`) stretches the whole grid the same way as `ProjectImage`, and takes the same `true | number` value.
 - `<PdfEmbed src="" title="" />` — embedded PDF viewer with a "Download / Open in new tab" fallback link
 - `<VideoEmbed src="" />` — supports both self-hosted video files and YouTube/Vimeo embed URLs
 - `<LinkCard href="" title="" description="" />` — slim Notion-style bookmark card (not a bare `<a>` tag). Automatically scrapes the target URL's Open Graph image at **build time** and shows it as a thumbnail — no image prop needed. Renders with no thumbnail (not a blank placeholder box) if the target has no `og:image`/`twitter:image`, or 404s/errors.
@@ -78,6 +79,17 @@ Register these as the MDX custom components mapping (`lib/mdx-components.tsx`) s
 - **JS-expression props require `blockJS: false`.** `next-mdx-remote` strips *any* `{ }` JSX-expression attribute (arrays, objects, numbers — not plain string literals) by default, as a security guard against untrusted CMS content. Since every `.mdx` file here is self-authored and checked into this repo (never third-party content), that guard is disabled via `options={{ blockJS: false }}` on `<MDXRemote>` in `app/projects/[slug]/page.tsx`. This is already project-wide — no action needed unless you're debugging a component whose array/object/number prop is mysteriously arriving as `undefined`.
 - **Don't use MDX-level `export const` to build a prop value.** Top-level `export`/`import` statements in `.mdx` bodies are stripped separately (a different opt-in, `useDynamicImport`, which isn't enabled). Write array/object literals inline in the JSX attribute instead.
 - **Any component using `next/image fill` inside an `overflow-hidden` box must add the `not-prose` class to its wrapper.** Tailwind Typography's `.prose img` rule applies `margin-top`/`margin-bottom` to every image in the article. That margin conflicts with `fill`'s absolute positioning (`inset: 0; height: 100%`), pushing the image past the bottom of its box — and since the box clips overflow, it looks like the image is being cropped. `not-prose` opts the whole subtree out of Typography's styling. (`ImageGrid` already does this; `ProjectImage` doesn't need it since it doesn't use `fill`.)
+- **`fullBleed` (`ProjectImage`/`ImageGrid`) uses the viewport-relative break-out trick, generalized to any width via `lib/full-bleed.ts` (`fullBleedStyle`)**: `position: relative; left: 50%; width: {vw}vw; margin-left/right: -{vw/2}vw`, applied as an inline `style` (not Tailwind classes, since the percentage is a runtime value Tailwind's JIT can't see statically). `fullBleed` (`true`) resolves to 100vw; `fullBleed={90}` resolves to 90vw, etc. — always centered on the viewport regardless of the article's `max-w-3xl` column, without needing a JS measurement. This relies on `overflow-x: hidden` on `body` (`app/globals.css`) so that 100vw (which can be a few px wider than the visible viewport when a scrollbar is present) never introduces horizontal scroll — don't remove that rule while `fullBleed` is in use.
+- **Images render with no border/background frame around them** — `ProjectImage` renders the `<Image>` directly with no wrapping `<div>`. `ImageGrid` still wraps each cell in a `relative aspect-[4/3] overflow-hidden` div (structurally required so `fill` has a sized, positioned parent), but that div carries no `border`/`bg-*` styling. Don't reintroduce a bordered/background wrapper around images — it was removed as a deliberate aesthetic choice.
+
+## Math Rendering
+
+Equations in project write-ups (e.g. model formulations, objective functions) render as real typeset math via **KaTeX**, wired through `remark-math` + `rehype-katex` in the `MDXRemote` `options.mdxOptions` in `app/projects/[slug]/page.tsx`, with `katex/dist/katex.min.css` imported once in `app/layout.tsx`.
+
+- **Inline math**: `$x_{fgi}$` → $x_{fgi}$
+- **Display math**: a `$$...$$` block on its own lines (blank line before/after) renders as a centered equation block.
+- **Do not** write raw LaTeX braces (`{`, `}`) outside of `$...$`/`$$...$$` delimiters or a code span/fence — MDX's JSX-expression parser treats a bare `{` as the start of a JS expression and will throw an acorn parse error. Once wrapped in `$`/`$$`, remark-math's syntax extension claims the span before MDX's JSX extension sees the braces inside it, so standard LaTeX (`\{`, `_{...}`, `\text{...}`, etc.) works fine.
+- Previously this repo used ` ```math ` fenced code blocks as a stand-in for equations (they preserved the LaTeX source but rendered as plain monospace text, not real math) — that convention is superseded. Use `$...$`/`$$...$$` for all new equations; existing content has been migrated.
 
 ## Folder Layout
 
@@ -106,6 +118,7 @@ Register these as the MDX custom components mapping (`lib/mdx-components.tsx`) s
   mdx-components.tsx       # custom component -> MDX tag mapping, passed to <MDXRemote>
   social-links.ts          # shared LinkedIn/GitHub/Email links (bio row + floating bar)
   tag-colors.ts            # deterministic pastel color per tag
+  full-bleed.ts            # fullBleed inline-style helper shared by ProjectImage/ImageGrid
   og-image.ts              # build-time Open Graph image scraper used by LinkCard
 /public
   profile.jpg               # About Me profile picture
