@@ -43,7 +43,11 @@ export function getAllProjects(): ProjectSummary[] {
       return matter(raw).data as ProjectFrontmatter;
     })
     .filter((project) => SHOW_DRAFTS || !project.draft)
-    .sort((a, b) => (a.dateStart > b.dateStart ? -1 : 1));
+    .sort((a, b) => {
+      const aEnd = a.dateEnd && a.dateEnd.toLowerCase() !== "present" ? a.dateEnd : "9999-99";
+      const bEnd = b.dateEnd && b.dateEnd.toLowerCase() !== "present" ? b.dateEnd : "9999-99";
+      return aEnd > bEnd ? -1 : aEnd < bEnd ? 1 : 0;
+    });
 }
 
 export function getAllSlugs(): string[] {

@@ -13,16 +13,25 @@ export default function ProjectImage({
   caption?: ReactNode;
   fullBleed?: FullBleed;
 }) {
+  const isGif = /\.gif$/i.test(src);
+
   return (
     <figure className="my-6" style={fullBleedStyle(fullBleed)}>
-      <Image
-        src={src}
-        alt={alt}
-        width={1200}
-        height={800}
-        sizes="100vw"
-        className="h-auto w-full object-contain"
-      />
+      {isGif ? (
+        // next/image re-encodes GIFs during optimization, which strips
+        // animation — use a plain <img> to preserve it.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt={alt} className="h-auto w-full object-contain" />
+      ) : (
+        <Image
+          src={src}
+          alt={alt}
+          width={1200}
+          height={800}
+          sizes="100vw"
+          className="h-auto w-full object-contain"
+        />
+      )}
       {caption ? (
         <figcaption
           className={`mt-2 text-center text-sm text-foreground/60 ${fullBleed ? "px-6" : ""}`}
