@@ -1,6 +1,6 @@
 // TODO: replace placeholder URLs with real profile links.
 export const SOCIAL_LINKS = [
-  { label: "LinkedIn", href: "https://linkedin.com/in/your-handle" },
-  { label: "GitHub", href: "https://github.com/your-handle" },
-  { label: "Email", href: "mailto:you@example.com" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/nathanansel/" },
+  { label: "GitHub", href: "https://github.com/nathanansel28" },
+  { label: "Email", href: "mailto:nathanansel28@gmail.com" },
 ] as const;
