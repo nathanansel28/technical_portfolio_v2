@@ -10,6 +10,7 @@ A personal technical portfolio site replacing a previous Notion-API-based build 
 - **Tailwind CSS** (v4) for styling, plus **@tailwindcss/typography** for the `prose` classes that style rendered MDX body content
 - **gray-matter** for frontmatter parsing
 - **react-icons** for the floating social icon buttons (not `lucide-react` — it dropped brand/logo icons like GitHub/LinkedIn)
+- **remark-math** + **rehype-katex** (+ `katex` for the stylesheet) for LaTeX math rendering in MDX body content — see "Math Rendering" below
 - Deployment target: **Vercel** (static export where possible)
 
 Do not reintroduce Notion, react-notion-x, or any third-party CMS API. All content must be local files.
@@ -78,6 +79,15 @@ Register these as the MDX custom components mapping (`lib/mdx-components.tsx`) s
 - **JS-expression props require `blockJS: false`.** `next-mdx-remote` strips *any* `{ }` JSX-expression attribute (arrays, objects, numbers — not plain string literals) by default, as a security guard against untrusted CMS content. Since every `.mdx` file here is self-authored and checked into this repo (never third-party content), that guard is disabled via `options={{ blockJS: false }}` on `<MDXRemote>` in `app/projects/[slug]/page.tsx`. This is already project-wide — no action needed unless you're debugging a component whose array/object/number prop is mysteriously arriving as `undefined`.
 - **Don't use MDX-level `export const` to build a prop value.** Top-level `export`/`import` statements in `.mdx` bodies are stripped separately (a different opt-in, `useDynamicImport`, which isn't enabled). Write array/object literals inline in the JSX attribute instead.
 - **Any component using `next/image fill` inside an `overflow-hidden` box must add the `not-prose` class to its wrapper.** Tailwind Typography's `.prose img` rule applies `margin-top`/`margin-bottom` to every image in the article. That margin conflicts with `fill`'s absolute positioning (`inset: 0; height: 100%`), pushing the image past the bottom of its box — and since the box clips overflow, it looks like the image is being cropped. `not-prose` opts the whole subtree out of Typography's styling. (`ImageGrid` already does this; `ProjectImage` doesn't need it since it doesn't use `fill`.)
+
+## Math Rendering
+
+Equations in project write-ups (e.g. model formulations, objective functions) render as real typeset math via **KaTeX**, wired through `remark-math` + `rehype-katex` in the `MDXRemote` `options.mdxOptions` in `app/projects/[slug]/page.tsx`, with `katex/dist/katex.min.css` imported once in `app/layout.tsx`.
+
+- **Inline math**: `$x_{fgi}$` → $x_{fgi}$
+- **Display math**: a `$$...$$` block on its own lines (blank line before/after) renders as a centered equation block.
+- **Do not** write raw LaTeX braces (`{`, `}`) outside of `$...$`/`$$...$$` delimiters or a code span/fence — MDX's JSX-expression parser treats a bare `{` as the start of a JS expression and will throw an acorn parse error. Once wrapped in `$`/`$$`, remark-math's syntax extension claims the span before MDX's JSX extension sees the braces inside it, so standard LaTeX (`\{`, `_{...}`, `\text{...}`, etc.) works fine.
+- Previously this repo used ` ```math ` fenced code blocks as a stand-in for equations (they preserved the LaTeX source but rendered as plain monospace text, not real math) — that convention is superseded. Use `$...$`/`$$...$$` for all new equations; existing content has been migrated.
 
 ## Folder Layout
 

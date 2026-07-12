@@ -19,7 +19,7 @@ We systematically iterated our model over multiple crop items which are critical
 ## How does the Model work?
 
 ### <mark>What does the model do?</mark>
-
+  
 The model predicts the crop yield (in g/ha) of certain crop items based on several independent variables. The crop items were selected based on their contribution towards food security in Southeast Asia, i.e. these crop items form the most common staple crops used as the primary energy source for multiple countries.
 
 **CROP ITEMS**
@@ -68,43 +68,19 @@ Altogether, these factors serve as the independent variables to our machine lear
 
 The model was also based on **multiple linear regression**, which predicts crop yield by the following equation:
 
-```math
+$$
 \text{Crop Yield} = \beta_1x_1 + \beta_2x_2 + \beta_3x_3 + ... + \beta_nx_n
-```
+$$
 
-where
-
-```math
-x_1, x_2, ..., x_n
-```
-
-represent the value of each dependent variable and
-
-```math
-\beta_1, \beta_2, ..., \beta_n
-```
-
-represent the coefficient of each dependent variable (which represents how significant each feature's contribution towards crop yield is).
+where $x_1, x_2, ..., x_n$ represent the value of each dependent variable and $\beta_1, \beta_2, ..., \beta_n$ represent the coefficient of each dependent variable (which represents how significant each feature's contribution towards crop yield is).
 
 ### <mark>How was the model trained?</mark>
 
-Our goal now is to find the values of
-
-```math
-\beta_1, \beta_2, ... \beta_n
-```
-
-which enables us to predict crop yield while producing the least amount of error. This process is called model training.
+Our goal now is to find the values of $\beta_1, \beta_2, ... \beta_n$ which enables us to predict crop yield while producing the least amount of error. This process is called model training.
 
 The model was trained by utilizing an algorithm known as **gradient descent**. To run the algorithm, we set up a cost function which measures the total error in the ML model's predictions; that is, the cost function measures how badly our predictions deviate from the actual values. The **gradient descent algorithm** minimizes this cost function through a series of iterations and finds the optimal solution.
 
-By finding the optimal solution, the gradient descent algorithm essentially finds the best possible values of
-
-```math
-\beta_1, \beta_2, ... \beta_n
-```
-
-which predicts crop yield effectively.
+By finding the optimal solution, the gradient descent algorithm essentially finds the best possible values of $\beta_1, \beta_2, ... \beta_n$ which predicts crop yield effectively.
 
 <ProjectImage
   src="/projects/food-security-southeast-asia/gradient-descent-illustration_01.png"
@@ -261,7 +237,7 @@ This is possibly due to the removal of some significant regressors in the second
   - Adjusted R-squared: 3.268034
   - F-value: -0.329001
 
-Due to wheat's small dataset size, the F value was negative in the 1st model. `n-k < 0` for wheat, such that the F-test value took a negative value. A negative F-test value does not make sense statistically, and as such, we did not train this model any further. No matter what we try, it's not possible to improve this model due to the exceedingly limiting dataset size.
+Due to wheat's small dataset size, the F value was negative in the 1st model. $n-k < 0$ for wheat, such that the F-test value took a negative value. A negative F-test value does not make sense statistically, and as such, we did not train this model any further. No matter what we try, it's not possible to improve this model due to the exceedingly limiting dataset size.
 
 **C4: Cassava, fresh**
 

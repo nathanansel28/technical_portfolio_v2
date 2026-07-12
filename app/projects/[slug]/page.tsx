@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 import type { Metadata } from "next";
 import TagPill from "@/components/TagPill";
 import { mdxComponents } from "@/lib/mdx-components";
@@ -77,7 +79,13 @@ export default async function ProjectPage({
         <MDXRemote
           source={project.content}
           components={mdxComponents}
-          options={{ blockJS: false }}
+          options={{
+            blockJS: false,
+            mdxOptions: {
+              remarkPlugins: [remarkMath],
+              rehypePlugins: [rehypeKatex],
+            },
+          }}
         />
       </article>
     </main>
