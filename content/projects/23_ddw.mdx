@@ -3,7 +3,7 @@ title: "Food Security in Southeast Asia"
 slug: "food-security-southeast-asia"
 dateStart: "2023-09"
 dateEnd: "2023-12"
-coverImage: "/projects/food-security-southeast-asia/cover.jpg"
+coverImage: "/projects/23_ddw/cover.jpg"
 tags: ["Machine Learning", "Python", "matplotlib", "pandas", "scikit-learn", "seaborn"]
 summary: "Built and iteratively refined multiple linear regression models predicting crop yield across 10 staple crops in Southeast Asia from environmental, economic, and political factors — awarded Best Project."
 ---
@@ -83,7 +83,7 @@ The model was trained by utilizing an algorithm known as **gradient descent**. T
 By finding the optimal solution, the gradient descent algorithm essentially finds the best possible values of $\beta_1, \beta_2, ... \beta_n$ which predicts crop yield effectively.
 
 <ProjectImage
-  src="/projects/food-security-southeast-asia/gradient-descent-illustration_01.png"
+  src="/projects/23_ddw/gradient-descent-illustration_01.png"
   alt="Illustration of gradient descent converging toward a minimum"
   caption={<>Illustration of Gradient Descent, from <a href="https://en.wikipedia.org/wiki/Gradient_descent">Wikipedia</a></>}
 />
@@ -96,13 +96,13 @@ Before performing data analysis, one must understand the nature of the data firs
 
 <ImageGrid
   images={[
-    { src: "/projects/food-security-southeast-asia/yield-rice-by-country_01.png", alt: "Scatter plot of rice yield over time across Southeast Asian countries" },
-    { src: "/projects/food-security-southeast-asia/yield-top-crops-vietnam_01.png", alt: "Scatter plot of yield for the top 5 crop items in Vietnam over time" },
+    { src: "/projects/23_ddw/yield-rice-by-country_01.png", alt: "Scatter plot of rice yield over time across Southeast Asian countries" },
+    { src: "/projects/23_ddw/yield-top-crops-vietnam_01.png", alt: "Scatter plot of yield for the top 5 crop items in Vietnam over time" },
   ]}
 />
 
 <ProjectImage
-  src="/projects/food-security-southeast-asia/agriculture-gdp-share_01.png"
+  src="/projects/23_ddw/agriculture-gdp-share_01.png"
   alt="Line chart of agriculture, forestry, and fishing value added as a percentage of GDP across countries"
   caption=""
 />
@@ -110,7 +110,7 @@ Before performing data analysis, one must understand the nature of the data firs
 ### <mark>Gradient Descent</mark>
 
 <ProjectImage
-  src="/projects/food-security-southeast-asia/cost-function-crops_01.png"
+  src="/projects/23_ddw/cost-function-crops_01.png"
   alt="Cost function convergence curves for each crop item over training iterations"
   caption="The gradient descent minimizes the cost function as the number of iteration increases."
 />
@@ -124,25 +124,25 @@ In addition, to evaluate the significance of the model and each feature used, we
 To better understand the metrics, we visualized the metrics using the following charts.
 
 <ProjectImage
-  src="/projects/food-security-southeast-asia/model-eval-metrics-validation_01.png"
+  src="/projects/23_ddw/model-eval-metrics-validation_01.png"
   alt="Bar chart of R-squared, adjusted R-squared, and MSE per crop on the validation dataset"
   caption=""
 />
 
 <ProjectImage
-  src="/projects/food-security-southeast-asia/model-eval-ttest-validation_01.png"
+  src="/projects/23_ddw/model-eval-ttest-validation_01.png"
   alt="Bar chart of t-test results per feature and crop on the validation dataset"
   caption=""
 />
 
 <ProjectImage
-  src="/projects/food-security-southeast-asia/model-eval-ftest-validation_01.png"
+  src="/projects/23_ddw/model-eval-ftest-validation_01.png"
   alt="Bar chart of F-test results per crop on the validation dataset"
   caption=""
 />
 
 <ProjectImage
-  src="/projects/food-security-southeast-asia/feature-significance-model1_01.png"
+  src="/projects/23_ddw/feature-significance-model1_01.png"
   alt="Table indicating which features are statistically significant for model 1, by crop"
   caption=""
 />
@@ -154,25 +154,25 @@ It was clear that some models needed extra tweaking and improvement. We therefor
 After performing these tweaks, we evaluated the improved model using the same metrics.
 
 <ProjectImage
-  src="/projects/food-security-southeast-asia/model-eval-metrics-test_01.png"
+  src="/projects/23_ddw/model-eval-metrics-test_01.png"
   alt="Bar chart of R-squared, adjusted R-squared, and MSE per crop on the test dataset"
   caption=""
 />
 
 <ProjectImage
-  src="/projects/food-security-southeast-asia/model-eval-ttest-test_01.png"
+  src="/projects/23_ddw/model-eval-ttest-test_01.png"
   alt="Bar chart of t-test results per feature and crop on the test dataset"
   caption=""
 />
 
 <ProjectImage
-  src="/projects/food-security-southeast-asia/model-eval-ftest-test_01.png"
+  src="/projects/23_ddw/model-eval-ftest-test_01.png"
   alt="Bar chart of F-test results per crop on the test dataset"
   caption=""
 />
 
 <ProjectImage
-  src="/projects/food-security-southeast-asia/feature-significance-model2_01.png"
+  src="/projects/23_ddw/feature-significance-model2_01.png"
   alt="Table indicating which features are statistically significant for model 2, by crop"
   caption=""
 />
@@ -183,13 +183,13 @@ After tweaking the model, one question stands: does the improved model perform b
 
 <ImageGrid
   images={[
-    { src: "/projects/food-security-southeast-asia/colormap-model1-evaluation_01.png", alt: "Color-coded table of R-squared, adjusted R-squared, and MSE for model 1" },
-    { src: "/projects/food-security-southeast-asia/colormap-model2-test_01.png", alt: "Color-coded table of R-squared, adjusted R-squared, and MSE for model 2 test results" },
+    { src: "/projects/23_ddw/colormap-model1-evaluation_01.png", alt: "Color-coded table of R-squared, adjusted R-squared, and MSE for model 1" },
+    { src: "/projects/23_ddw/colormap-model2-test_01.png", alt: "Color-coded table of R-squared, adjusted R-squared, and MSE for model 2 test results" },
   ]}
 />
 
 <ProjectImage
-  src="/projects/food-security-southeast-asia/model-comparison-change-table_01.png"
+  src="/projects/23_ddw/model-comparison-change-table_01.png"
   alt="Table of changes in R-squared, adjusted R-squared, MSE, and F-value between model 1 and model 2, by crop"
   caption=""
 />

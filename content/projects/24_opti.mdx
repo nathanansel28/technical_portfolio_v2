@@ -3,7 +3,7 @@ title: "Optimising the Fisheries Industry in the Philippines"
 slug: "fisheries-industry-philippines"
 dateStart: "2024-01"
 dateEnd: "2024-04"
-coverImage: "/projects/fisheries-industry-philippines/cover.jpg"
+coverImage: "/projects/24_opti/cover.jpg"
 tags: ["Julia", "Optimization", "Python"]
 summary: "Built a Mixed Integer Linear Program in Julia to optimize fish distribution and government subsidies across the Philippines' fishing supply chain."
 ---
@@ -30,7 +30,7 @@ Protein deficiency and poverty in the Philippines is a an alarming issue, especi
 The Philippines is one of the world's biggest archipelagos: it is made up of multiple islands interconnected by sea. As such, the Philippines is blessed with abundant natural resources from the sea, namely fish. However, a major challenge is posed in that this fish is not directly accessible to the people. For an ordinary person to consume fish, fish must be distributed through an intricate supply chain involving, from the very beginning, a fishing ground, and then a processing facility, and finally a city from where a person can directly buy fish. Consider the following diagram to illustrate this supply chain.
 
 <ProjectImage
-  src="/projects/fisheries-industry-philippines/supply-chain-diagram_01.png"
+  src="/projects/24_opti/supply-chain-diagram_01.png"
   alt="Fish supply chain diagram from fishing ground to processing facility to city"
   caption=""
 />
@@ -88,7 +88,7 @@ The model was parameterized with real 2021 data pulled from Philippine governmen
 - Inter-node distances computed from real coordinates via the **Haversine formula** in Python
 
 <ProjectImage
-  src="/projects/fisheries-industry-philippines/network-map_01.png"
+  src="/projects/24_opti/network-map_01.png"
   alt="Map of fishing grounds and processing facilities (left) and cities (right) used in the model, plotted across the Philippines"
   caption="Fishing grounds & processing facilities (left) and cities (right) used in the model."
 />
@@ -117,6 +117,6 @@ The Big-M weighting on protein maximization ($M = 10^5$) is a modeling convenien
 ## Read the Complete Project Report
 
 <PdfEmbed
-  src="/projects/fisheries-industry-philippines/optimisation-project-report_01.pdf"
+  src="/projects/24_opti/optimisation-project-report_01.pdf"
   title="40.002 Optimisation - 1D Project Report"
 />

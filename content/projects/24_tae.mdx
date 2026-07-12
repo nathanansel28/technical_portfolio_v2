@@ -3,7 +3,7 @@ title: "Transportation Analytics"
 slug: "transportation-analytics"
 dateStart: "2024-08"
 dateEnd: "2024-08"
-coverImage: "/projects/transportation-analytics/cover.jpg"
+coverImage: "/projects/24_tae/cover.jpg"
 tags: ["Data & Business Analytics", "Machine Learning", "R"]
 summary: "Built discrete choice models (MNL, Random Forest, XGBoost) in R, combined via a soft-voting ensemble, to predict consumer trade-offs among vehicle safety-feature bundles — placing 1st runner-up in a GM-sponsored data competition."
 ---
@@ -35,7 +35,7 @@ We chose XGBoost over alternatives like AdaBoost, CatBoost, and LightGBM for its
 Hyperparameters were tuned via a self-implemented grid search (rather than a built-in one, so we could track our own log-loss/accuracy/overfitting metrics directly), fine-tuning number of trees, learning rate (`eta`), max tree depth, minimum loss reduction (`gamma`), and L2 regularization (`lambda`) — each evaluated for its own overfitting/underfitting trade-off. 5-fold cross-validation was used throughout to keep tuning decisions consistent across folds.
 
 <ProjectImage
-  src="/projects/transportation-analytics/xgboost-importance_01.png"
+  src="/projects/24_tae/xgboost-importance_01.png"
   alt="Bar chart of XGBoost feature importance, dominated by the three Price variables"
   caption="XGBoost feature importance — the three Price levels dominate."
 />
@@ -60,7 +60,7 @@ Beyond raw predictive performance, we spent real effort interpreting what each m
 - **Random Forest variable importance** (via `varImp()`) showed the three Price levels far outweighing every other feature, followed by alternative-specific effects like income and age.
 
 <ProjectImage
-  src="/projects/transportation-analytics/rf-importance_01.png"
+  src="/projects/24_tae/rf-importance_01.png"
   alt="Dot charts of Random Forest variable importance by Mean Decrease Accuracy and Mean Decrease Gini, both dominated by Price"
   caption="Random Forest variable importance — Mean Decrease Accuracy (left) and Mean Decrease Gini (right)."
 />
@@ -70,8 +70,8 @@ Beyond raw predictive performance, we spent real effort interpreting what each m
 <ImageGrid
   columns={2}
   images={[
-    { src: "/projects/transportation-analytics/shap-choice1_01.png", alt: "SHAP importance plot for customers who chose package 1, dominated by Price1" },
-    { src: "/projects/transportation-analytics/shap-choice2_01.png", alt: "SHAP importance plot for customers who chose package 2, dominated by Price2" },
+    { src: "/projects/24_tae/shap-choice1_01.png", alt: "SHAP importance plot for customers who chose package 1, dominated by Price1" },
+    { src: "/projects/24_tae/shap-choice2_01.png", alt: "SHAP importance plot for customers who chose package 2, dominated by Price2" },
   ]}
 />
 
@@ -82,6 +82,6 @@ Our self-implemented grid search was time-consuming given the large hyperparamet
 ## Report
 
 <PdfEmbed
-  src="/projects/transportation-analytics/tae-competition-report_01.pdf"
+  src="/projects/24_tae/tae-competition-report_01.pdf"
   title="40.016 TAE Competition Report"
 />
