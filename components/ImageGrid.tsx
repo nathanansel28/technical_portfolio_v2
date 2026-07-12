@@ -21,7 +21,7 @@ export default function ImageGrid({
     >
       {images.map((image, i) => (
         <figure key={i} className="flex flex-col gap-2">
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-black/5 bg-black/[.02]">
+          <div className="relative aspect-[4/3] w-full overflow-hidden">
             <Image
               src={image.src}
               alt={image.alt}
