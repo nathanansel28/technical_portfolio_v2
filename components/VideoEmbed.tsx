@@ -1,5 +1,25 @@
+"use client";
+
+import { useRef, useSyncExternalStore } from "react";
+
 function isEmbedUrl(src: string): boolean {
   return /youtube\.com|youtu\.be|vimeo\.com/.test(src);
+}
+
+const HOVER_QUERY = "(hover: hover) and (pointer: fine)";
+
+function subscribeHoverSupport(callback: () => void) {
+  const mql = window.matchMedia(HOVER_QUERY);
+  mql.addEventListener("change", callback);
+  return () => mql.removeEventListener("change", callback);
+}
+
+function getHoverSupport() {
+  return window.matchMedia(HOVER_QUERY).matches;
+}
+
+function getHoverSupportServerSnapshot() {
+  return false;
 }
 
 function toEmbedUrl(src: string): string {
@@ -15,10 +35,33 @@ function toEmbedUrl(src: string): string {
   return src;
 }
 
-export default function VideoEmbed({ src }: { src: string }) {
+export default function VideoEmbed({
+  src,
+  hoverPlay = false,
+  className,
+}: {
+  src: string;
+  hoverPlay?: boolean;
+  className?: string;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  // Only devices with real hover (mouse/trackpad) get the hover-play
+  // treatment — touch devices have no hover, so they fall back to a
+  // normal video with controls.
+  const supportsHover = useSyncExternalStore(
+    subscribeHoverSupport,
+    getHoverSupport,
+    getHoverSupportServerSnapshot
+  );
+
   if (isEmbedUrl(src)) {
     return (
-      <div className="relative my-6 aspect-video w-full overflow-hidden rounded-lg border border-black/10">
+      <div
+        className={
+          className ??
+          "relative my-6 aspect-video w-full overflow-hidden rounded-lg border border-black/10"
+        }
+      >
         <iframe
           src={toEmbedUrl(src)}
           title="Embedded video"
@@ -30,11 +73,28 @@ export default function VideoEmbed({ src }: { src: string }) {
     );
   }
 
+  const useHoverPlay = hoverPlay && supportsHover;
+
   return (
     <video
-      controls
-      className="my-6 w-full rounded-lg border border-black/10"
+      ref={videoRef}
+      controls={!useHoverPlay}
+      muted={useHoverPlay}
+      loop={useHoverPlay}
+      playsInline
+      className={className ?? "my-6 w-full rounded-lg border border-black/10"}
       src={src}
+      onMouseEnter={useHoverPlay ? () => videoRef.current?.play() : undefined}
+      onMouseLeave={
+        useHoverPlay
+          ? () => {
+              const v = videoRef.current;
+              if (!v) return;
+              v.pause();
+              v.currentTime = 0;
+            }
+          : undefined
+      }
     />
   );
 }

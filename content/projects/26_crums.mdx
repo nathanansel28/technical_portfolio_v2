@@ -1,0 +1,241 @@
+---
+title: "CRUMS: Rethink Your Food Waste"
+slug: "crums-capstone-project"
+dateStart: "2025-09"
+dateEnd: "2026-04"
+coverImage: "/projects/26_crums/crums_render.png"
+tags: ["Computer Vision", "Embedded Systems", "Full-Stack", "Machine Learning", "Project Management"]
+summary: "Led a 7-person team building a smart food-waste bin that uses Black Soldier Fly larvae to upcycle 20kg of waste a day — architecting the Jetson + dual-ESP32 system, the YOLO gatekeeper that decides what gets in, and the real-time game that makes upcycling feel rewarding."
+---
+
+# Overview
+
+<blockquote>
+It has been a absoulute pleasure to work with Nathan during his time with us for his school's CAPSTONE project. The project was delivered with the results we were pleased with. 
+
+Nathan demonstrated leadership by leading the development of the project, whilst having strong project management skills. His strong leadership enabled the project to come to fruitation. 
+On the technical side, Nathan's AI engineering capabilities were impressive. He managed to develop the project with his team to the exact specifications that we needed, and thus bringing the project to life.
+
+Nathan is someone whom we will be willing to work alongside with. I have no doubt he will continue to acheive great things. I am strongly reccomending him to any organisation.
+
+**-Gerald Lee, Commercial Manager at Ento Industries**
+</blockquote>
+
+<ProjectImage
+  src="/projects/26_crums/showcase.jpg"
+  alt="With David Neo, Acting Minister Acting Minister for Culture, Community and Youth."
+  caption="With David Neo, Acting Minister Acting Minister for Culture, Community and Youth."
+/>
+
+Singapore throws away **646,000 tonnes of food waste a year** and recycles just **18%** of it. CRUMS is our answer: an automated bin that feeds household and canteen food waste to **Black Soldier Fly larvae**, which convert it into animal feed and fertiliser — while teaching the person standing in front of it why any of this matters.
+
+You place your tray on a scale. A camera scans it. If it's clean organic waste, a double door slides open and the scraps go to the larvae. Then a chick on the screen gets fed with the digital pellets you just earned.
+
+Built over 8 months with **Ento Industries** as our industry partner, by a **7-person cross-functional team** (mechanical, electronics, software) that I led as **Project Manager**.
+
+{/* IMAGE: hero shot of the assembled CRUMS unit */}
+
+
+<ProjectImage
+  src="/projects/26_crums/crums.gif"
+  alt="The assembled CRUMS unit"
+  caption="CRUMS — an automated BSF composting bin with a public-awareness layer."
+/>
+<LinkCard
+  href="https://capstoneshowcase.sutd.edu.sg/project/proj-s09-ento-public-awareness-of-waste-management/"
+  title="SUTD Capstone Showcase — Project S09: CRUMS"
+  description="Full project showcase, including the mechanical and design work"
+/>
+
+<LinkCard
+  href="https://www.linkedin.com/posts/sutd_sutd-dive-sutddesignai-activity-7450906166693363713-GC1H?utm_source=share&utm_medium=member_desktop&rcm=ACoAADUaG4EBXO-TnhwcgNoLZXl7vm-6wLQhW-Y"
+  title="SUTD Capstone Showcase 2026 — LinkedIn post"
+  description=""
+/>
+
+
+
+## How it Works
+Hover over each panel to run the animation and see CRUMS in action.
+<VideoGrid
+  columns={3}
+  hoverPlay
+  fullBleed={85}
+  videos={[
+    {
+      src: "/projects/26_crums/raw/how-it-works-1.mp4",
+      title: "Step 1 — Step Up to the Scale",
+      description: "Place your tray on the platform. High-precision sensors weigh your food scraps to track how much waste you're diverting from landfill.",
+    },
+    {
+      src: "/projects/26_crums/raw/how-it-works-2.mp4",
+      title: "Step 2 — Let's Check Your Tray",
+      description: "Computer vision scans for contamination — remove cutlery, plastic wrappers, or napkins before it's approved.",
+    },
+    {
+      src: "/projects/26_crums/raw/how-it-works-3.mp4",
+      title: "Step 3 — Ready for Take-Off",
+      description: "Once approved, the door slides open. Tip your food waste into the hatch — it's headed straight to the larvae.",
+    },
+    {
+      src: "/projects/26_crums/raw/how-it-works-4.mp4",
+      title: "Step 4 — The Circle of Life",
+      description: "While the larvae get to work, explore the infographics on the Black Soldier Fly's life cycle and how it upcycles nutrients.",
+    },
+    {
+      src: "/projects/26_crums/raw/how-it-works-5.mp4",
+      title: "Step 5 — Meet the Tiny Heroes",
+      description: "Peer through the observation window — each larva can eat twice its body weight in food waste a day.",
+    },
+    {
+      src: "/projects/26_crums/raw/how-it-works-6.mp4",
+      title: "Step 6 — Feed Your Digital Chick",
+      description: "Your upcycled waste becomes digital pellets. Feed the chick on-screen to watch it grow and unlock rare characters.",
+    },
+  ]}
+/>
+
+
+
+
+# What I Worked On
+
+I was **Project Manager and software/systems lead**: I coordinated the mechanical, electronics, and software workstreams, managed the team's relationship with Ento, and personally built essentially all of the software — the computer-vision gatekeeper, the Jetson control system, the two state machines that run the machine, and the real-time game backend. I also spent a fair amount of time with a multimeter, debugging wiring alongside the electronics team.
+
+The rest — grinder, forklift, larvae habitat, door fabrication — was my teammates' excellent work, and it's all documented on the showcase.
+
+## Teaching a Bin What Food Is
+
+The camera is the gatekeeper for everything downstream. A bone jams the grinder. Liquid drowns the larvae. A fork does both. So the model isn't classifying *what food is* — it's classifying **whether something is safe to put into a live bioprocessing pipeline**, and no public dataset does that.
+
+So we built one. **8 custom classes**, each mapped to a specific failure mode: `bone` (breaks the grinder), `liquid` (chokes larvae), `ice`, `utensil`, `rubbish`, and my favourite — **`bone-under-meat`**. A bone hidden under a slab of meat looks like ordinary food to a naive model, so we made concealment its own class and forced the model to learn it.
+
+{/* IMAGE: the 8-class taxonomy diagram / annotated detections */}
+<ProjectImage
+  src="/projects/26_crums/DSC02701.jpg"
+  alt="The eight custom classes and their associated failure modes"
+  caption="Eight classes, each tied to a way the system could break."
+/>
+
+Getting there took **41 experiments across 12 dataset versions**. Iteration 1 was a proof of concept with 4 broad classes that missed **34%** of food waste. By iteration 37 we'd hit **mAP@50 = 0.993** and **F1 = 0.778**, with `bone-under-meat` detection up **1,300%** and `ice` introduced from nothing. Most of that gain came from dataset work, not model work: targeted collection under real deployment conditions (our camera angle, our lighting, our trays), oversampling, and aggressive augmentation so that a 100-image rare class wasn't drowned by a 99,000-image base.
+
+We ran **YOLO nano** rather than a larger variant — on a Jetson Orin Nano, the marginal accuracy of a bigger model wasn't worth the inference cost when a person is standing there waiting.
+
+### Single frames lie
+
+A camera shake or a moment of occlusion shouldn't reject someone's lunch. So the decision isn't made per-frame — it accumulates over a **6-second temporal window**. We accept only if food appears in **≥30% of frames with zero blocked detections**; we reject the instant any hazard class shows up, and tell the user exactly what to remove ("Bones can damage the grinder — please remove bones"), wait 4 seconds, and reset for another scan. Reject, not lock out.
+
+<ProjectImage
+  src="/projects/26_crums/IMG_6415.gif"
+  alt="The computer vision model scanning user input and rejecting a tray with a bone."
+  caption="Food items are accepted, but bones, rubbish, liquid, and other invalid items are rejected."
+/>
+
+
+On a **56-image real-world test set** collected independently of training data, the system reached a **~13% false-negative rate** (19 misses out of ~150 objects) with low false positives. FNR was our headline metric on purpose: a missed hazard is far more expensive than a false alarm.
+
+## One Brain, Two Hands
+
+{/* IMAGE: system architecture diagram (Jetson → 2× ESP32) */}
+{/* <ProjectImage
+  src="/projects/26_crums/system_architecture.png"
+  alt="System architecture: Jetson Orin Nano commanding two ESP32 microcontrollers"
+  caption="Centralised decision-making, distributed execution."
+/> */}
+
+I architected CRUMS as **one decision-maker and two executors**. The **Jetson Orin Nano** runs the CV model, tracks processed weight, persists state, and issues every command. Two **ESP32s** (C++/FreeRTOS) own physical domains: the **Master-MCU** drives the double door, grinder, and dispensing nozzle; the **Forklift-MCU** drives the lift, wheels, and load cells. One source of truth, no peer synchronisation, no ambiguity about who's in charge.
+
+Between them sits a custom **three-phase UART handshake**: **Send → Acknowledge → Done**. The Jetson doesn't proceed until the ESP32 confirms receipt *and* reports completion. In software, a dropped message is a bug. Here it's a door that doesn't close, or a grinder that starts when it shouldn't — so every physical action is verified end to end.
+
+### Two state machines that survive a power cut
+
+Behaviour is governed by two **independent finite state machines** — Door (`Idle → Scanning → Open → Grinding → Idle`) and Forklift (`Idle → Lifting → Dispensing → Lowering → Idle`). Independence is the point: the door can accept a new tray while the forklift is mid-cycle in the background, and neither can stall the other. At the daily **20kg** limit, both stand down automatically.
+
+All critical state is written **atomically to disk** on the Jetson. Pull the plug mid-grind and CRUMS wakes up exactly where it left off — no lost weight, no confused motors. This is the kind of thing nobody notices when it works, which is the whole idea.
+
+{/* IMAGE: system architecture diagram (Jetson → 2× ESP32) */}
+<ProjectImage
+  src="/projects/26_crums/state_machine.png"
+  alt="State machine"
+  caption="State machine diagram."
+/>
+
+## Feeding a Digital Chick
+
+The thing about upcycling is that you never see it work. The bag goes away and that's it — you never know what happens next.
+
+So we built the **game backend**: a **FastAPI** service running on the Jetson that takes processed waste and turns it into digital pellets, then sends them to a **React/TypeScript/Electron** frontend using **Server-Sent Events**. Drop your scraps in the grinder and the chick's food supply updates instantly. No polling, no page refresh, no gap between the physical action and seeing the result.
+
+The chick actually means something too: the BSF larvae from CRUMS become real chicken feed. You're not just feeding pixels — you're feeding something tied to actual biology. And we ditched accounts and logins entirely. In a cafeteria line, people won't log in before they compost, and honestly upcycling works better when everyone's watching the same progress anyway.
+
+{/* IMAGES: game screens — feeding, evolving, emoting */}
+<ImageGrid
+  columns={4}
+  fullBleed={60}
+  aspectRatio="9/16"
+  images={[
+    { 
+      src: "/projects/26_crums/game-1.gif", 
+      alt: "Pellets are spent and the chick grows to its next level.", 
+      caption: "Pellets are spent and the chick grows to its next level." 
+    },
+    { 
+      src: "/projects/26_crums/game-2.gif", 
+      alt: "A fully grown chick lays an egg and a new themed character is unlocked for the collection.", 
+      caption: "A fully grown chick lays an egg and a new themed character is unlocked for the collection." 
+    },
+    { 
+      src: "/projects/26_crums/game-3.gif", 
+      alt: "No pellets available — the chick emotes sad, nudging users to upcycle more waste.",
+      caption: "No pellets available — the chick emotes sad, nudging users to upcycle more waste." 
+    },
+    { 
+      src: "/projects/26_crums/game-4.gif", 
+      alt: "Pellets are available — the chick emotes happy, rewarding the community's upcycling effort.", 
+      caption: "Pellets are available — the chick emotes happy, rewarding the community's upcycling effort." 
+    },
+  ]}
+/>
+
+## Did It Actually Work?
+
+We ran a user study with **59 respondents**:
+
+- **95%** would recommend or share BSF solutions with their community
+- Majority rated themselves **likely or very likely** to use a BSF bin at school or work
+- **85%** said the game motivated them to deposit more food waste; **78%** found it engaging
+
+And the education layer moved real numbers. Correct answers before → after using CRUMS:
+
+- *How long is the BSF lifecycle?* **9% → 87%**
+- *Do adult BSF bite or spread disease?* **19% → 92%**
+- *What are BSF larvae outputs?* **28% → 85%**
+
+At scale, the operational case is straightforward: across **335 schools** over **200 school days**, replacing ~6 hours of daily manual waste handling with ~1 hour of system maintenance saves roughly **335,000 man-hours a year**.
+
+{/* ## What I Took Away
+
+The engineering lesson that stuck wasn't about YOLO or FreeRTOS. It was that in a physical system, **every assumption you make becomes someone's hand near a grinder**. The handshake protocol, the temporal window, the atomic state writes, the four independent safety layers on the door — none of them are clever. They're all just refusals to assume things work.
+
+Leading seven people across three disciplines taught me the other half: that the hardest integration problem is usually the one between the mechanical team's timeline and the software team's assumptions, and it doesn't get solved in code. */}
+
+# Gallery
+
+<ProjectImage
+  src="/projects/26_crums/team_photo.jpg"
+  alt="Our beloved capstone team."
+  caption="Our beloved capstone team."
+/>
+
+<ProjectImage
+  src="/projects/26_crums/DSC02909.jpg"
+  alt="Visitors interacting with the CRUMS unit at the SUTD Capstone Showcase."
+  caption="Visitors interacting with the CRUMS unit at the SUTD Capstone Showcase."
+/>
+
+<ProjectImage
+  src="/projects/26_crums/DSC02679.jpg"
+  alt="The black soldier fly larvae hard at work."
+  caption="The black soldier fly larvae hard at work."
+/>
+
