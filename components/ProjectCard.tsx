@@ -30,7 +30,7 @@ export default function ProjectCard({ project }: { project: ProjectSummary }) {
         <p className="text-sm text-foreground/60">
           {formatDateRange(project.dateStart, project.dateEnd)}
         </p>
-        <p className="text-sm text-foreground/70 line-clamp-2">{project.summary}</p>
+        <p className="text-sm text-foreground/70">{project.summary}</p>
         <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
           {project.tags.map((tag) => (
             <TagPill key={tag} tag={tag} />
