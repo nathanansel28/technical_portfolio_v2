@@ -5,7 +5,7 @@ dateStart: "2025-09"
 dateEnd: "2026-04"
 coverImage: "/projects/26_crums/crums_render.png"
 tags: ["Computer Vision", "Embedded Systems", "Python", "C++", "React", "FastAPI", "YOLOv8", "FreeRTOS"]
-summary: "Led a 7-person team building a smart food-waste bin that uses Black Soldier Fly larvae to upcycle 20kg of waste a day."
+summary: "Led a 7-person team building a smart food-waste bin that uses Black Soldier Fly larvae to upcycle 20kg of waste a day, automated by Computer Vision and Embedded Systems."
 ---
 
 # Overview
@@ -23,8 +23,8 @@ Nathan is someone whom we will be willing to work alongside with. I have no doub
 
 <ProjectImage
   src="/projects/26_crums/showcase.jpg"
-  alt="With David Neo, Acting Minister Acting Minister for Culture, Community and Youth."
-  caption="With David Neo, Acting Minister Acting Minister for Culture, Community and Youth."
+  alt="With David Neo, Acting Minister for Culture, Community and Youth."
+  caption="With David Neo, Acting Minister for Culture, Community and Youth."
 />
 
 Singapore throws away **646,000 tonnes of food waste a year** and recycles just **18%** of it. CRUMS is our answer: an automated bin that feeds household and canteen food waste to **Black Soldier Fly larvae**, which convert it into animal feed and fertiliser — while teaching the person standing in front of it why any of this matters.
@@ -108,16 +108,51 @@ The rest — grinder, forklift, larvae habitat, door fabrication — was my team
 
 The camera is the gatekeeper for everything downstream. A bone jams the grinder. Liquid drowns the larvae. A fork does both. So the model isn't classifying *what food is* — it's classifying **whether something is safe to put into a live bioprocessing pipeline**, and no public dataset does that.
 
-So we built one. **8 custom classes**, each mapped to a specific failure mode: `bone` (breaks the grinder), `liquid` (chokes larvae), `ice`, `utensil`, `rubbish`, and my favourite — **`bone-under-meat`**. A bone hidden under a slab of meat looks like ordinary food to a naive model, so we made concealment its own class and forced the model to learn it.
-
-{/* IMAGE: the 8-class taxonomy diagram / annotated detections */}
 <ProjectImage
   src="/projects/26_crums/DSC02701.jpg"
   alt="The eight custom classes and their associated failure modes"
   caption="Eight classes, each tied to a way the system could break."
 />
 
+So we built one. **8 custom classes**, each mapped to a specific failure mode: `bone` (breaks the grinder), `liquid` (chokes larvae), `ice`, `utensil`, `rubbish`, and my favourite — **`bone-under-meat`**. A bone hidden under a slab of meat looks like ordinary food to a naive model, so we made concealment its own class and forced the model to learn it.
+
+{/* IMAGE: the 8-class taxonomy diagram / annotated detections */}
+<ProjectImage
+  src="/projects/26_crums/computer_vision/taxonomy.png"
+  alt="The eight custom classes and their associated failure modes"
+  caption="Eight classes, each tied to a way the system could break."
+/>
+
 Getting there took **41 experiments across 12 dataset versions**. Iteration 1 was a proof of concept with 4 broad classes that missed **34%** of food waste. By iteration 37 we'd hit **mAP@50 = 0.993** and **F1 = 0.778**, with `bone-under-meat` detection up **1,300%** and `ice` introduced from nothing. Most of that gain came from dataset work, not model work: targeted collection under real deployment conditions (our camera angle, our lighting, our trays), oversampling, and aggressive augmentation so that a 100-image rare class wasn't drowned by a 99,000-image base.
+
+<ImageGrid
+  columns = {4}
+  fullBleed = {95}
+  images={[
+    { 
+      src: "/projects/26_crums/computer_vision/BoxF1_curve.png", 
+      alt: "BoxF1_curve.png",
+    },
+    { 
+      src: "/projects/26_crums/computer_vision/BoxP_curve.png", 
+      alt: "Iteration 37: 8 classes, mAP@50 = 0.993, F1 = 0.778",
+    },
+    { 
+      src: "/projects/26_crums/computer_vision/BoxPR_curve.png", 
+      alt: "BoxPR_curve.png",
+    },
+    { 
+      src: "/projects/26_crums/computer_vision/BoxR_curve.png", 
+      alt: "Iteration 37: 8 classes, mAP@50 = 0.993, F1 = 0.778",
+    },
+  ]}
+/>
+
+<ProjectImage
+  src="/projects/26_crums/computer_vision/confusion_matrix_normalized.png"
+  alt="Normalized confusion matrix"
+/>
+
 
 We ran **YOLO nano** rather than a larger variant — on a Jetson Orin Nano, the marginal accuracy of a bigger model wasn't worth the inference cost when a person is standing there waiting.
 
