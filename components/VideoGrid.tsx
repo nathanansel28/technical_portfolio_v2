@@ -11,11 +11,13 @@ export default function VideoGrid({
   videos,
   columns = 3,
   hoverPlay = false,
+  autoPlay = false,
   fullBleed,
 }: {
   videos: VideoGridItem[];
   columns?: 2 | 3;
   hoverPlay?: boolean;
+  autoPlay?: boolean;
   fullBleed?: FullBleed;
 }) {
   return (
@@ -32,6 +34,7 @@ export default function VideoGrid({
             <VideoEmbed
               src={video.src}
               hoverPlay={hoverPlay}
+              autoPlay={autoPlay}
               className="w-full rounded-lg border border-black/10"
             />
             <div>

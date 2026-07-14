@@ -22,15 +22,20 @@ function getHoverSupportServerSnapshot() {
   return false;
 }
 
-function toEmbedUrl(src: string): string {
+function toEmbedUrl(src: string, autoPlay: boolean): string {
   const youtubeWatch = src.match(/youtube\.com\/watch\?v=([\w-]+)/);
-  if (youtubeWatch) return `https://www.youtube.com/embed/${youtubeWatch[1]}`;
-
   const youtubeShort = src.match(/youtu\.be\/([\w-]+)/);
-  if (youtubeShort) return `https://www.youtube.com/embed/${youtubeShort[1]}`;
+  const youtubeId = youtubeWatch?.[1] ?? youtubeShort?.[1];
+  if (youtubeId) {
+    const params = autoPlay ? "?autoplay=1&mute=1&loop=1&playlist=" + youtubeId : "";
+    return `https://www.youtube.com/embed/${youtubeId}${params}`;
+  }
 
   const vimeo = src.match(/vimeo\.com\/(\d+)/);
-  if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`;
+  if (vimeo) {
+    const params = autoPlay ? "?autoplay=1&muted=1&loop=1" : "";
+    return `https://player.vimeo.com/video/${vimeo[1]}${params}`;
+  }
 
   return src;
 }
@@ -38,10 +43,18 @@ function toEmbedUrl(src: string): string {
 export default function VideoEmbed({
   src,
   hoverPlay = false,
+  autoPlay = false,
   className,
 }: {
   src: string;
   hoverPlay?: boolean;
+  // Plays muted and looping as soon as the video is on the page — no
+  // hover/click needed. Intended for side-by-side comparisons (e.g. in a
+  // VideoGrid) where the viewer needs to see multiple clips running at
+  // once. Takes precedence over hoverPlay if both are set. For embed URLs
+  // (YouTube/Vimeo), relies on the platform's own autoplay+mute query
+  // params rather than the self-hosted <video> element.
+  autoPlay?: boolean;
   className?: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -63,7 +76,7 @@ export default function VideoEmbed({
         }
       >
         <iframe
-          src={toEmbedUrl(src)}
+          src={toEmbedUrl(src, autoPlay)}
           title="Embedded video"
           className="absolute inset-0 h-full w-full"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -73,14 +86,15 @@ export default function VideoEmbed({
     );
   }
 
-  const useHoverPlay = hoverPlay && supportsHover;
+  const useHoverPlay = !autoPlay && hoverPlay && supportsHover;
 
   return (
     <video
       ref={videoRef}
       controls={!useHoverPlay}
-      muted={useHoverPlay}
-      loop={useHoverPlay}
+      muted={useHoverPlay || autoPlay}
+      loop={useHoverPlay || autoPlay}
+      autoPlay={autoPlay}
       playsInline
       className={className ?? "my-6 w-full rounded-lg border border-black/10"}
       src={src}
