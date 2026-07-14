@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useSyncExternalStore } from "react";
+import { useRef, useSyncExternalStore, type ReactNode } from "react";
 
 function isEmbedUrl(src: string): boolean {
   return /youtube\.com|youtu\.be|vimeo\.com/.test(src);
@@ -44,6 +44,7 @@ export default function VideoEmbed({
   src,
   hoverPlay = false,
   autoPlay = false,
+  caption,
   className,
 }: {
   src: string;
@@ -55,6 +56,8 @@ export default function VideoEmbed({
   // (YouTube/Vimeo), relies on the platform's own autoplay+mute query
   // params rather than the self-hosted <video> element.
   autoPlay?: boolean;
+  // Text shown under the video, same as ProjectImage's caption prop.
+  caption?: ReactNode;
   className?: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -67,28 +70,24 @@ export default function VideoEmbed({
     getHoverSupportServerSnapshot
   );
 
-  if (isEmbedUrl(src)) {
-    return (
-      <div
-        className={
-          className ??
-          "relative my-6 aspect-video w-full overflow-hidden rounded-lg border border-black/10"
-        }
-      >
-        <iframe
-          src={toEmbedUrl(src, autoPlay)}
-          title="Embedded video"
-          className="absolute inset-0 h-full w-full"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      </div>
-    );
-  }
-
   const useHoverPlay = !autoPlay && hoverPlay && supportsHover;
 
-  return (
+  const content = isEmbedUrl(src) ? (
+    <div
+      className={
+        className ??
+        "relative my-6 aspect-video w-full overflow-hidden rounded-lg border border-black/10"
+      }
+    >
+      <iframe
+        src={toEmbedUrl(src, autoPlay)}
+        title="Embedded video"
+        className="absolute inset-0 h-full w-full"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    </div>
+  ) : (
     <video
       ref={videoRef}
       controls={!useHoverPlay}
@@ -110,5 +109,16 @@ export default function VideoEmbed({
           : undefined
       }
     />
+  );
+
+  if (!caption) return content;
+
+  return (
+    <figure className="my-0">
+      {content}
+      <figcaption className="mt-2 text-center text-sm text-foreground/60">
+        {caption}
+      </figcaption>
+    </figure>
   );
 }
