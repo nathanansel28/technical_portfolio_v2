@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkMath from "remark-math";
+import remarkGfm from "remark-gfm";
 import rehypeKatex from "rehype-katex";
 import type { Metadata } from "next";
 import TagPill from "@/components/TagPill";
@@ -75,14 +76,14 @@ export default async function ProjectPage({
         </div>
       </header>
 
-      <article className="prose prose-neutral max-w-none prose-headings:font-semibold prose-a:text-foreground [&>h1]:mt-16 [&>h1:first-child]:mt-0">
+      <article className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-semibold prose-a:text-foreground [&>h1]:mt-16 [&>h1:first-child]:mt-0">
         <MDXRemote
           source={project.content}
           components={mdxComponents}
           options={{
             blockJS: false,
             mdxOptions: {
-              remarkPlugins: [remarkMath],
+              remarkPlugins: [remarkMath, remarkGfm],
               rehypePlugins: [rehypeKatex],
             },
           }}

@@ -1,10 +1,10 @@
 ---
 title: "Sample"
 slug: "sample-1"
-dateStart: "2023-09"
-dateEnd: "2024-06"
+dateStart: "2003-09"
+dateEnd: "2004-06"
 coverImage: "/projects/urban-resilience-fragmentation/cover.svg"
-tags: ["Python", "R", "Computer Vision", "Machine Learning", "geopandas", "selenium", "openpyxl", "transbigdata", "osmnx", "cv2", "scipy", "matplotlib", "seaborn"]
+tags: ["Python", "R", "Computer Vision"]
 summary: "One-line description shown in card hover or meta tags."
 draft: true
 ---
@@ -20,7 +20,12 @@ formatting (headings, paragraphs, lists, links) all render through the
 - Built a network-fragmentation metric on top of `osmnx` graphs
 - Validated results against ground-truth survey data
 
-## Figures
+> A blockquote, **bold**, *italic*, ***bold italic***, and <mark>highlighted
+> inline HTML</mark> all render normally through the `prose` styles.
+
+## ProjectImage
+
+Standard image with a caption:
 
 <ProjectImage
   src="/projects/sample/figure-network.svg"
@@ -28,13 +33,99 @@ formatting (headings, paragraphs, lists, links) all render through the
   caption="Fig. 1 — Placeholder diagram. Swap for a real figure exported from the analysis."
 />
 
-## Tools referenced inline
+Full-bleed image (breaks out to span the full viewport width):
 
-Built primarily with <TagPill tag="Python" /> and <TagPill tag="geopandas" />,
-with a small <TagPill tag="Computer Vision" /> component for image-based
-validation.
+<ProjectImage
+  src="/projects/sample/figure-network.svg"
+  alt="Placeholder full-bleed diagram"
+  caption="Fig. 2 — Full-bleed (100vw)."
+  fullBleed
+/>
 
-## Related links
+Partial full-bleed, capped at 90% of the viewport width:
+
+<ProjectImage
+  src="/projects/sample/figure-network.svg"
+  alt="Placeholder partial full-bleed diagram"
+  caption="Fig. 3 — Partial full-bleed (fullBleed={90})."
+  fullBleed={90}
+/>
+
+## ImageGrid
+
+Two-column grid with a per-image caption on each cell:
+
+<ImageGrid
+  columns={2}
+  images={[
+    { src: "/projects/sample/figure-network.svg", alt: "Placeholder diagram, cell 1", caption: "Cell 1 caption" },
+    { src: "/projects/urban-resilience-fragmentation/cover.svg", alt: "Placeholder diagram, cell 2", caption: "Cell 2 caption" },
+  ]}
+/>
+
+Three-column grid with a single whole-grid caption below, full-bleed:
+
+<ImageGrid
+  columns={3}
+  fullBleed
+  aspectRatio="4/3"
+  caption="Fig. 4 — One caption for the whole grid, full-bleed."
+  images={[
+    { src: "/projects/sample/figure-network.svg", alt: "Placeholder diagram, cell 1" },
+    { src: "/projects/urban-resilience-fragmentation/cover.svg", alt: "Placeholder diagram, cell 2" },
+    { src: "/projects/sample/figure-network.svg", alt: "Placeholder diagram, cell 3" },
+  ]}
+/>
+
+## PdfEmbed
+
+<PdfEmbed
+  src="/projects/sample/report.pdf"
+  title="Full write-up (placeholder PDF)"
+/>
+
+## VideoEmbed
+
+YouTube/Vimeo embed URL, with visible controls:
+
+<VideoEmbed src="https://www.youtube.com/watch?v=aqz-KE-bpKQ" />
+
+Self-hosted file with `hoverPlay` (plays muted/looping on hover, pauses and
+rewinds on mouse-leave; falls back to normal controls on touch devices):
+
+<VideoEmbed
+  src="/projects/26_crums/raw/how-it-works-1.mp4"
+  hoverPlay
+/>
+
+## VideoGrid
+
+Grid of self-hosted videos, each with a title and description, `hoverPlay`
+applied to every cell:
+
+<VideoGrid
+  columns={3}
+  hoverPlay
+  videos={[
+    { src: "/projects/26_crums/raw/how-it-works-1.mp4", title: "Step 1", description: "Placeholder description for step 1." },
+    { src: "/projects/26_crums/raw/how-it-works-2.mp4", title: "Step 2", description: "Placeholder description for step 2." },
+    { src: "/projects/26_crums/raw/how-it-works-3.mp4", title: "Step 3", description: "Placeholder description for step 3." },
+  ]}
+/>
+
+`autoPlay` grid — both clips play muted/looping immediately, useful for a
+side-by-side scenario comparison (e.g. "before" vs. "after"):
+
+<VideoGrid
+  columns={2}
+  autoPlay
+  videos={[
+    { src: "/projects/26_crums/raw/how-it-works-1.mp4", title: "Scenario A", description: "Plays automatically, muted and looping." },
+    { src: "/projects/26_crums/raw/how-it-works-2.mp4", title: "Scenario B", description: "Plays automatically, muted and looping." },
+  ]}
+/>
+
+## LinkCard
 
 <LinkCard
   href="https://github.com/your-handle/sample"
@@ -42,13 +133,20 @@ validation.
   description="Placeholder repository link — replace with the real one."
 />
 
-## Report
+## TagPill
 
-<PdfEmbed
-  src="/projects/sample/report.pdf"
-  title="Full write-up (placeholder PDF)"
-/>
+Used inline when referencing specific tools within body text: built
+primarily with <TagPill tag="Python" /> and <TagPill tag="geopandas" />,
+with a small <TagPill tag="Computer Vision" /> component for image-based
+validation.
 
-## Walkthrough video
+## Math
 
-<VideoEmbed src="https://www.youtube.com/watch?v=aqz-KE-bpKQ" />
+Inline math renders within a sentence, e.g. $x_{fgi}$ is the amount of
+resource $f$ allocated from source $g$ to destination $i$.
+
+Display math renders as a centered, standalone block:
+
+$$
+\max Z = \sum_{f}\sum_{g}\sum_{i} c_{fgi} \cdot x_{fgi} \quad \text{s.t. } x_{fgi} \geq 0 \; \forall f,g,i
+$$
