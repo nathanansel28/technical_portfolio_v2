@@ -5,26 +5,26 @@ dateStart: "2026-01"
 dateEnd: "2026-04"
 coverImage: "/projects/26_sma/gridworld.png"
 tags: ["Agent-Based Simulation", "Statistics", "Operations Research", "Python", "JavaScript"]
-summary: "Engineered an in-browser hospital simulation, applying CRN across 3,500+ paired replications to isolate variance and quantify robot fleet ROI."
+summary: "Built an agent-based simulation of a hospital ward, pairing a 3,540-run factorial sweep with variance-reduced statistical analysis to isolate when a service-robot fleet improves patient safety."
 ---
 
-This project does not represent CGH — it is not a real project with CGH; our project was done for the course 40.015 Simulation Modelling and Analysis.
+*This is a course project for 40.015 Simulation Modelling and Analysis. It models a scenario inspired by Changi General Hospital's public robot deployment and does not represent CGH or use CGH data.*
 
 # Overview
 
-Singapore's healthcare system faces a structural nursing shortage driven by rapid population ageing, rising chronic disease burden, and persistent workforce attrition rooted in excessive workload. To address this problem, Changi General Hospital deployed three autonomous mobile robots in its Emergency Department: **MEDi** (medication transport), **BLANKi** (comfort items), and **EDi** (visitor escort) in July 2023. The robots were designed to offload non-clinical errands from nurses so that they can focus more on real medical work. 
+Singapore's healthcare system faces a structural nursing shortage driven by rapid population ageing, rising chronic disease burden, and persistent workforce attrition rooted in excessive workload. To address this problem, Changi General Hospital deployed three autonomous mobile robots in its Emergency Department in July 2023: **MEDi** (medication transport), **BLANKi** (comfort items), and **EDi** (visitor escort). The robots were designed to offload non-clinical errands from nurses so that they can focus on clinical work.
 
-But does a human-robot hybrid model produce *statistically significant, system-level* improvements in patient outcomes, or merely local efficiencies that dissolve once the ward is considered as a whole? 
+But does a human-robot hybrid model produce *statistically significant, system-level* improvements in patient outcomes, or merely local efficiencies that dissolve once the ward is considered as a whole?
 
-This simulation answers the question by running a discrete-time ABM of a 48-bed ward under two conditions: **Scenario A** (nurses only) and **Scenario B** (same nurses plus a configurable robot fleet). Patient outcomes are compared across 30 statistically independent replications using **Welch's t-test**.
-
+This simulation answers that question by running a discrete-time ABM of a 48-bed ward under two conditions: **Scenario A** (nurses only) and **Scenario B** (same nurses plus a configurable robot fleet). Because both scenarios share Common Random Numbers, outcomes are compared across 30 paired replications using paired $t$-tests with a Holm–Bonferroni correction.
 
 <LinkCard
   href="https://github.com/nathanansel28/sma-40015-final-project"
   title="Source code, model documentation, and output analysis"
+  description="Vanilla-JS simulation engine (Pixi.js rendering, seeded LCG PRNG), Node sweep harness, and the full Python analysis pipeline that reproduces every figure below."
 />
 
-We built an *in-browser agent-based simulation* with configurable parameters — nurse count, MEDi/BLANKi/EDi fleet size, patient need spawn rates, and the PRNG seed are all live-adjustable through a reactive control panel, with play/pause/step controls to scrub through a shift or watch it unfold in real time.
+We built an *in-browser agent-based simulation* with configurable parameters: nurse count, MEDi/BLANKi/EDi fleet size, patient need spawn rates, and the PRNG seed are all live-adjustable through a reactive control panel, with play/pause/step controls to scrub through a shift or watch it unfold in real time.
 
 <VideoGrid
   columns={2}
@@ -46,11 +46,11 @@ We built an *in-browser agent-based simulation* with configurable parameters —
 
 The ward is a 20 × 15 grid: **48 beds** in four bays of twelve, **4 nurse stations**, **3 charging bays**, and a single **entrance**. One tick is 30 seconds of ward time; one run is 960 ticks, or a single 8-hour nursing shift.
 
-Each tick, every patient independently rolls for four classes of need — emergency, medication, comfort, visitor escort — and posts them to a global `NeedQueue`. Nurses and robots poll that queue and compete to claim work. Unfulfilled needs drain patient health at type-specific rates; when health hits zero, a **critical incident** is logged.
+Each tick, every patient independently rolls for four classes of need (emergency, medication, comfort, visitor escort) and posts them to a global `NeedQueue`. Nurses and robots poll that queue and compete to claim work. Unfulfilled needs drain patient health at type-specific rates; when health hits zero, a **critical incident** is logged.
 
 <ImageGrid
   columns = {5}
-  caption = "Patient, nurse MEDi, BLANKi, and EDi sprites used in the simulation."
+  caption = "Patient, nurse, MEDi, BLANKi, and EDi sprites used in the simulation."
   gap = "gap-1"
   images = {[
     {
@@ -78,7 +78,7 @@ Each tick, every patient independently rolls for four classes of need — emerge
 
 # Simulation Design
 
-**Only nurses can serve emergencies.** Robots cannot help patients directly, so any benefit they produce must arrive *indirectly*, through the nurse capacity they free up. 
+**Only nurses can serve emergencies.** Robots cannot help patients directly, so any benefit they produce must arrive *indirectly*, through the nurse capacity they free up.
 
 Nurses are **generalists** and dispatch themselves by scoring every serviceable open need:
 
@@ -88,13 +88,13 @@ $$
 
 which balances urgency ($w = 10$ for emergencies down to $1$ for escorts), fairness (needs that have waited longer score higher), and efficiency (closer needs win, all else equal).
 
-Robots are **specialists** and use a cheaper **nearest-first** rule over the single need type they serve, with hard pre-emption below 20% battery — the only task interruption anywhere in the model.
+Robots are **specialists** and use a cheaper **nearest-first** rule over the single need type they serve, with hard pre-emption below the low-battery threshold (20 of a max 80), the only task interruption anywhere in the model.
 
 Movement uses **BFS** on the grid; *scoring* uses Manhattan distance. That is a conscious trade-off, not an oversight: Manhattan is a cheap lower bound on true path length and preserves the relative ordering well enough for a greedy claim, without paying for a BFS per candidate need per idle agent per tick.
 
 Robots decide *before* nurses, so that in the robot scenario the routine work is skimmed off before nurses look at the queue.
 
-As an Agent-Based Model, the core logic is driven by the internal state machines of the agents. 
+The model is agent-based at its core: all behaviour emerges from the internal state machines of the agents.
 
 ### Patient and Nurse State Diagrams
 <ImageGrid
@@ -136,25 +136,27 @@ As an Agent-Based Model, the core logic is driven by the internal state machines
 
 # Analysis
 
-Two scenarios are compared. **Scenario A** uses the same nurse count as B but zero robots, while **Scenario B** adds a configurable fleet of MEDi, BLANKi, and EDi robots. Each scenario runs for 960 ticks (one eight-hour shift), with the first 50 ticks designated as warm-up and excluded from all aggregated KPIs. 
+## Experimental Design
 
-{/* | | Scenario A | Scenario B |
-|---|---|---|
-| Nurses | `NURSE_COUNT` | `NURSE_COUNT` |
-| MEDi / BLANKi / EDi | 0 / 0 / 0 | configurable fleet | */}
+Two scenarios are compared. **Scenario A** uses the same nurse count as B but zero robots, while **Scenario B** adds a configurable fleet of MEDi, BLANKi, and EDi robots; the baseline comparison sits at 5 nurses with one robot of each type. Each replication runs 960 ticks (one eight-hour shift), with the first 50 ticks designated as warm-up and excluded from all aggregated KPIs.
 
-## Common Random Numbers
+### Common Random Numbers
 
-Replications are seeded sequentially (seeds 1-30) using a **Linear Congruential Generator**, so every stochastic decision is reproducible. Critically, the same seed $k$ across every cell of the sweep reproduces the same patient arrival pattern (using Common Random Numbers (CRN)) that enables paired analysis across scenarios. 
+Every stochastic draw routes through a seeded **linear congruential PRNG**, and replications are seeded sequentially (seeds 1-30). Reusing the same seed $k$ in both scenarios reproduces the *identical* patient-arrival sequence, so replication $k$ of A and replication $k$ of B face the same shift, and the difference between them is attributable to the robots rather than to the luck of the draw. This is a textbook Common Random Numbers (CRN) variance-reduction setup, and the same seeds are reused across every cell of the sweep.
 
-Every stochastic draw routes through a seeded **linear-congruential PRNG**. The same seed reproduces the identical patient-arrival sequence in *both* scenarios — so replication $k$ of A and replication $k$ of B face the same shift, and the difference between them is attributable to the robots rather than to the luck of the draw.
+<ProjectImage
+  src="/projects/26_sma/crn-paired-design.svg"
+  alt="Diagram of the paired experimental design: seed k drives an identical patient-arrival sequence into Scenario A and Scenario B, producing paired differences analysed with a paired t-test, Cohen's d_z, bootstrap intervals, and Holm-Bonferroni correction"
+  caption="The paired design: one seed, two scenarios, one directly comparable difference per replication."
+  fullBleed={45}
+/>
 
-This pairing lets the analysis use a **paired $t$-test** on $d = A - B$, which differences out between-seed variance and reaches significance with 30 replications where an unpaired Welch test would have needed far more. 
+The pairing lets the analysis use a **paired $t$-test** on $d = A - B$, which differences out between-seed variance and reaches significance with 30 replications where an unpaired Welch test would have needed far more.
 
-### The sweep
+### The Sweep
 
 - **Full factorial (108 cells):** `NURSE_COUNT` ∈ {3, 5, 7} × `MEDI` ∈ {0,1,2,3} × `BLANKI` ∈ {0,1,2} × `EDI` ∈ {0,1,2}
-- **One-at-a-Time supplement (10 cells):** medication and emergency spawn rates perturbed to 0.5×, 0.75×, 1×, 1.5×, 2× of the CGH-calibrated baseline
+- **One-at-a-Time supplement (10 cells):** medication and emergency spawn rates perturbed to 0.5×, 0.75×, 1×, 1.5×, 2× of the calibrated baseline
 - **118 design cells × 30 replications = 3,540 runs**, driven by a Node harness and analysed in Python
 
 ## Primary KPIs
@@ -167,7 +169,7 @@ Five KPIs are tracked, ordered by clinical relevance:
 4. Mean Medication Wait Time
 5. Mean Nurse Utilisation
 
-Emergency *wait* and emergency *response* time are the same quantity by construction — an emergency is only ever served by the nurse who arrives — so they report identical values throughout, and the tables below collapse them into four distinct rows.
+Emergency *wait* and emergency *response* time are the same quantity by construction (an emergency is only ever served by the nurse who arrives), so they report identical values throughout, and the tables below collapse them into four distinct rows.
 
 Since five KPIs are tested simultaneously, a step-down **Holm–Bonferroni** correction controls the family-wise error rate at 0.05. **Cohen's $d_z$** measures effect size, and a **percentile bootstrap** (10,000 resamples) acts as a distribution-agnostic cross-check on every mean difference.
 
@@ -216,15 +218,15 @@ Two KPIs improve substantially, with effect sizes above 0.8 and bootstrap interv
 
 The two null results are as informative as the two wins.
 
-**Emergency response time does not improve** ($p = 0.46$, $d_z = -0.14$). This is *correct by construction* — emergencies are nurse-only, and nurses do not abandon a patient mid-task, so a nurse already occupied with a medication round is unavailable whether or not a robot exists. A significant result here would have signalled a bug in the model.
+**Emergency response time does not improve** (raw $p = 0.46$, $d_z = -0.14$). This is *correct by construction*: emergencies are nurse-only, and nurses do not abandon a patient mid-task, so a nurse already occupied with a medication round is unavailable whether or not a robot exists. A significant result here would have signalled a bug in the model.
 
 **Nurse utilisation does not fall** ($p_{\text{Holm}} = 0.15$). Robots do not give nurses an easier shift; the emergency channel is nurse-only and need arrival rates drive the nurse schedule regardless. What changes is *what nurses spend the shift doing*, not how much they do. That is a materially different claim from the one a robotics vendor would make, and the model is what lets us tell the two apart.
 
 ## Sensitivity Analysis
 
-The factorial data reveals which staffing factor matters most for each KPI, and — critically for generalisability — how the *value of each robot type* depends on nurse count. The OAT sweeps probe the response surface along the load dimensions.
+The factorial data reveals which staffing factor matters most for each KPI, and, critically for generalisability, how the *value of each robot type* depends on nurse count. The OAT sweeps probe the response surface along the load dimensions.
 
-An OLS regression of each KPI on all four staffing factors, with factors centred and unit-variance standardised so coefficients are directly comparable within a KPI.
+We fit an OLS regression of each KPI on all four staffing factors, with factors centred and unit-variance standardised so coefficients are directly comparable within a KPI.
 
 <ProjectImage
   src="/projects/26_sma/output_analysis/02_tornado_main_effects.png"
@@ -246,7 +248,7 @@ Three patterns emerge.
 
 **MEDi is the second-strongest factor** on the two KPIs robots can plausibly influence, confirming the intended mechanism: faster medication delivery prevents patient health from draining to zero.
 
-**BLANKi has no detectable effect on medication wait** (coefficient 0.18, $p = 0.78$) — as it shouldn't, since it never touches a vial. It does contribute measurably to critical-incident reduction (−3.6), consistent with unfulfilled comfort needs driving their own slower health drain. A model that had "found" a medication effect for the blanket robot would have been telling us something was wrong with the model.
+**BLANKi has no detectable effect on medication wait** (coefficient 0.18, $p = 0.78$), as it shouldn't, since it never touches a vial. It does contribute measurably to critical-incident reduction (−3.6), consistent with unfulfilled comfort needs driving their own slower health drain. A model that had "found" a medication effect for the blanket robot would have been telling us something was wrong with the model.
 
 ## Nurse × MEDi Interaction
 
@@ -261,13 +263,13 @@ Main-effect coefficients average across the other factors, which hides the thing
 
 At **three nurses**, adding MEDi transforms the ward: $94.9 \rightarrow 45.4 \rightarrow 19.0 \rightarrow 8.7$ incidents per shift as MEDi goes from 0 to 3. The first robot alone halves the count.
 
-At **five nurses**, the ward is already close to safe (4.23 incidents with no MEDi), and a single MEDi drops this to 0.47 — below one patient-safety event per shift.
+At **five nurses**, the ward is already close to safe (4.23 incidents with no MEDi), and a single MEDi drops this to 0.47, below one patient-safety event per shift.
 
 At **seven nurses**, the ward records zero critical incidents regardless of MEDi count.
 
 Robots are therefore **transformative under low staffing, modestly helpful at moderate staffing, and redundant at high staffing.** This is the central finding, and it is the one that should drive any deployment decision at a new site.
 
-Emergency response time shows a much weaker but directionally consistent pattern. It is principally a function of nurse count (23 ticks at $N = 3$ versus 14 at $N = 7$) and only marginally improved by MEDi (≈ 0.3 ticks per robot at $N = 3$) — expected, since MEDi cannot respond to an emergency and can only shorten response time indirectly, by having freed a nurse from a medication errand in advance.
+Emergency response time shows a much weaker but directionally consistent pattern. It is principally a function of nurse count (23 ticks at $N = 3$ versus 14 at $N = 7$) and only marginally improved by MEDi (≈ 0.3 ticks per robot at $N = 3$), which is expected, since MEDi cannot respond to an emergency and can only shorten response time indirectly, by having freed a nurse from a medication errand in advance.
 
 ## Wait Time vs. Total Robot Fleet
 
@@ -289,19 +291,19 @@ The same staffing-conditioned pattern holds on the wait-time side. Medication wa
   fullBleed={90}
 />
 
-Doubling the **medication** spawn rate drives critical incidents from near-zero to ≈ 30 per shift and pushes medication wait from ≈ 25 to ≈ 135 ticks. Nurse utilisation saturates near 0.94 — the ward is at maximum nurse capacity under heavy medication demand.
+Doubling the **medication** spawn rate drives critical incidents from near-zero to ≈ 30 per shift and pushes medication wait from ≈ 25 to ≈ 135 ticks. Nurse utilisation saturates near 0.94; the ward is at maximum nurse capacity under heavy medication demand.
 
 Doubling the **emergency** spawn rate has a far smaller effect: critical incidents rise only from ≈ 0.5 to ≈ 3, and emergency wait and nurse utilisation stay broadly flat until the highest level.
 
-The asymmetry is the useful finding. Under these service-time parameters the **medication channel — not the emergency channel — is the binding constraint on patient safety.** A hospital with heavier medication demand than CGH's calibration should therefore expect *more* value from MEDi, not less, which turns a model output into a transferable deployment rule.
+The asymmetry is the useful finding. Under these service-time parameters the **medication channel, not the emergency channel, is the binding constraint on patient safety.** A hospital with heavier medication demand than our calibration should therefore expect *more* value from MEDi, not less, which turns a model output into a transferable deployment rule.
 
 ## Sensitivity Conclusions
 
 Ranked by importance to the patient-safety KPI:
 
 1. `NURSE_COUNT`
-2. `MEDI_COUNT` — strong, and conditional on nurse count
-3. Medication spawn rate — a strong modulator of the required fleet size
+2. `MEDI_COUNT`: strong, and conditional on nurse count
+3. Medication spawn rate: a strong modulator of the required fleet size
 4. `EDI_COUNT`, `BLANKI_COUNT`
 5. Emergency spawn rate
 
@@ -311,7 +313,7 @@ For the remaining KPIs the ranking is qualitatively similar, but with `NURSE_COU
 
 ## A Terminating Simulation
 
-A hospital shift has a defined start and end. There is **no long-run steady state** to average over — real wards have shifting arrival patterns, handovers, and discrete breakpoints that any single eight-hour window samples non-stationarily. Running the model out to 10,000 ticks and applying batch-means analysis would answer a question nobody asked.
+A hospital shift has a defined start and end. There is **no long-run steady state** to average over: real wards have shifting arrival patterns, handovers, and discrete breakpoints that any single eight-hour window samples non-stationarily. Running the model out to 10,000 ticks and applying batch-means analysis would answer a question nobody asked.
 
 The model is therefore **terminating**, and the analysis uses the **method of independent replications**: many short runs, each simulating one full eight-hour shift from a clean initial state, with KPIs aggregated across the replication ensemble.
 
@@ -335,9 +337,9 @@ Welch's graphical method identifies where the transient ends. Each per-tick KPI 
 
 The three KPIs disagree, and the verdict is against us: `WARM_UP_TICKS = 50` is roughly **eight times too short** for the health-derived KPIs.
 
-Worse — and more interesting — average patient health **never stabilises at all**. It declines monotonically across the shift, which means patients accumulate needs faster than the nurse-plus-robot fleet can close them. There is no stationary regime for that KPI to settle into.
+Worse, and more interesting: average patient health **never stabilises at all**. It declines monotonically across the shift, which means patients accumulate needs faster than the nurse-plus-robot fleet can close them. There is no stationary regime for that KPI to settle into.
 
-The practical consequence: reported means for active-need count and patient-health-derived quantities are **slightly optimistic**, since the discarded window was too small to remove the low-activity opening. The A-vs-B *comparison* survives intact — both scenarios carry the identical bias, and it differences out — but the absolute levels should not be quoted as though they were clean. A follow-up run at `WARM_UP_TICKS = 400`, or an initial-condition design that seeds the ward with partially-aged needs and partially-drained patients, would remove the transient rather than discard it.
+The practical consequence: reported means for active-need count and patient-health-derived quantities are **slightly optimistic**, since the discarded window was too small to remove the low-activity opening. The A-vs-B *comparison* survives intact, because both scenarios carry the identical bias and it differences out, but the absolute levels should not be quoted as though they were clean. A follow-up run at `WARM_UP_TICKS = 400`, or an initial-condition design that seeds the ward with partially-aged needs and partially-drained patients, would remove the transient rather than discard it.
 
 # Accuracy of the Sample Mean
 
@@ -358,7 +360,7 @@ Evaluated at the Scenario-B baseline with $\delta$ set to 10% of each KPI's own 
 | Medication Wait Time | 57.543 | 11.842 | 0.077 | 18 | Yes |
 | Nurse Utilisation | 0.932 | 0.020 | 0.008 | 1 | Yes |
 
-Every KPI clears the bar at 30 replications except the headline one. Scenario B's critical-incident count is heavily zero-inflated — most shifts record none at all — which inflates the coefficient of variation enormously and pushes $n^*$ to 1,157.
+Every KPI clears the bar at 30 replications except the headline one. Scenario B's critical-incident count is heavily zero-inflated, since most shifts record none at all, which inflates the coefficient of variation enormously and pushes $n^*$ to 1,157.
 
 This is worth stating plainly, because it is a distinction that gets elided constantly: 30 replications are more than enough to establish that **the effect exists** ($d_z = 0.90$, Holm $p = 0.0001$). They are nowhere near enough to pin down **how large it is** to within 10%. Those are different claims, and only the first one is supported.
 
@@ -371,25 +373,27 @@ This is worth stating plainly, because it is a distinction that gets elided cons
   fullBleed={85}
 />
 
+The running means and their 95% intervals stabilise well before replication 30 for every KPI except critical incidents, whose interval stays wide, which is the same zero-inflation story told graphically.
+
 # Generalisability to Other Hospitals
 
 Reading the nurse × MEDi interaction heatmap yields three deployment regimes, defined by nurse-to-bed ratio rather than by hospital.
 
 ## Under-Staffed Wards
 
-At ≈ 3 nurses per 48 beds, patient-safety outcomes are unacceptable — a mean of **94.9 critical incidents per shift**, with essentially every shift experiencing multiple events. One MEDi halves this to 45.4; three cut it by an order of magnitude to 8.7.
+At ≈ 3 nurses per 48 beds, patient-safety outcomes are unacceptable: a mean of **94.9 critical incidents per shift**, with essentially every shift experiencing multiple events. One MEDi halves this to 45.4; three cut it by an order of magnitude to 8.7.
 
 But the correct intervention at this staffing level is **to hire nurses, with robots as a secondary layer.** The factorial is unambiguous that no fleet substitutes for the missing headcount, and a model that recommended a robot purchase here would be laundering a staffing failure into a procurement decision.
 
 ## Baseline-Staffed Wards
 
-At ≈ 5 nurses per 48 beds — matching CGH — a single MEDi drops critical incidents from 4.23 to 0.47 per shift and medication wait from 93 to 58 ticks, a **38% reduction**.
+At ≈ 5 nurses per 48 beds, matching the calibrated baseline, a single MEDi drops critical incidents from 4.23 to 0.47 per shift and medication wait from 93 to 58 ticks, a **38% reduction**.
 
 This is the regime where the business case is strongest. The safety ceiling is already close, so the robots deliver mainly **operational** gains: faster medication turnaround and better patient experience on comfort and escort needs.
 
 ## Well-Staffed Wards
 
-At ≈ 7 nurses per 48 beds, critical incidents are already essentially zero. Wait times improve only marginally under any robot configuration, and nurse utilisation falls by 1–2 percentage points. **Deployment is not recommended at this staffing level**, unless secondary objectives — reducing nurse walking distance, standardising medication handling — are explicitly valued.
+At ≈ 7 nurses per 48 beds, critical incidents are already essentially zero. Wait times improve only marginally under any robot configuration, and nurse utilisation falls by 1–2 percentage points. **Deployment is not recommended at this staffing level**, unless secondary objectives such as reducing nurse walking distance or standardising medication handling are explicitly valued.
 
 # Limitations
 
@@ -403,4 +407,4 @@ At ≈ 7 nurses per 48 beds, critical incidents are already essentially zero. Wa
 
 The simulation supports a **conditional** recommendation. A service-robot fleet produces substantial patient-safety and operational improvements in wards that are under- or moderately staffed **for their medication load**, and delivers diminishing returns at well-staffed saturation.
 
-The finding a hospital would actually act on is therefore not "buy robots." It is: **audit your nurse-to-bed ratio and your medication demand first**, because those two numbers determine whether a robot fleet is transformative, marginal, or a waste of capital — and the model will tell you which regime you are in before the money is spent.
+The finding a hospital would actually act on is therefore not "buy robots." It is: **audit your nurse-to-bed ratio and your medication demand first**, because those two numbers determine whether a robot fleet is transformative, marginal, or a waste of capital, and the model will tell you which regime you are in before the money is spent.
