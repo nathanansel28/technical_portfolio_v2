@@ -1,0 +1,70 @@
+<svg viewBox="0 0 920 470" xmlns="http://www.w3.org/2000/svg" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <!-- Card background so the diagram reads cleanly on light and dark themes -->
+  <rect x="1" y="1" width="918" height="468" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrowAccent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f766e"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="36" y="44" font-size="17" font-weight="700" fill="#0f172a">Weighted soft-voting ensemble</text>
+  <text x="36" y="64" font-size="12.5" fill="#64748b">Three base models of deliberately different architectures, combined by a weighted geometric mean</text>
+
+  <!-- ===== Training data ===== -->
+  <rect x="36" y="180" width="158" height="110" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="115" y="212" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle">Conjoint data</text>
+  <text x="115" y="232" font-size="11.5" fill="#475569" text-anchor="middle">GM safety-feature</text>
+  <text x="115" y="247" font-size="11.5" fill="#475569" text-anchor="middle">choice tasks</text>
+  <text x="115" y="271" font-size="10.5" fill="#0f766e" font-weight="600" text-anchor="middle">5-fold CV throughout</text>
+
+  <!-- Arrows from data to the three models -->
+  <path d="M 194 210 C 230 210, 240 140, 276 140" fill="none" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <path d="M 194 235 L 276 235" fill="none" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <path d="M 194 260 C 230 260, 240 330, 276 330" fill="none" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- ===== Base model: MNL ===== -->
+  <rect x="280" y="100" width="230" height="80" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="296" y="126" font-size="13.5" font-weight="700" fill="#0f172a">Multinomial Logit</text>
+  <text x="296" y="144" font-size="11" fill="#475569">Classical discrete choice model</text>
+  <text x="296" y="160" font-size="11" fill="#475569">One-hot encoded, 21 insignificant</text>
+  <text x="296" y="174" font-size="11" fill="#475569">levels removed</text>
+
+  <!-- ===== Base model: Random Forest ===== -->
+  <rect x="280" y="195" width="230" height="80" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="296" y="221" font-size="13.5" font-weight="700" fill="#0f172a">Random Forest</text>
+  <text x="296" y="239" font-size="11" fill="#475569">Bagging with 71 predictors</text>
+  <text x="296" y="255" font-size="11" fill="#475569">mtry = 16, ntree = 500</text>
+
+  <!-- ===== Base model: XGBoost ===== -->
+  <rect x="280" y="290" width="230" height="80" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="296" y="316" font-size="13.5" font-weight="700" fill="#0f172a">XGBoost</text>
+  <text x="296" y="334" font-size="11" fill="#475569">Gradient boosting, custom grid</text>
+  <text x="296" y="350" font-size="11" fill="#475569">search over eta, depth, gamma, lambda</text>
+
+  <!-- Probability arrows into the combiner -->
+  <path d="M 510 140 C 560 140, 570 205, 618 216" fill="none" stroke="#0f766e" stroke-width="1.8" marker-end="url(#arrowAccent)"/>
+  <path d="M 510 235 L 618 235" fill="none" stroke="#0f766e" stroke-width="1.8" marker-end="url(#arrowAccent)"/>
+  <path d="M 510 330 C 560 330, 570 265, 618 254" fill="none" stroke="#0f766e" stroke-width="1.8" marker-end="url(#arrowAccent)"/>
+  <text x="564" y="120" font-size="10.5" fill="#0f766e" font-weight="600">predicted</text>
+  <text x="564" y="134" font-size="10.5" fill="#0f766e" font-weight="600">probabilities</text>
+
+  <!-- ===== Combiner ===== -->
+  <rect x="622" y="180" width="180" height="110" rx="10" fill="#f0fdfa" stroke="#0f766e" stroke-width="2"/>
+  <text x="712" y="210" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle">Soft voting</text>
+  <text x="712" y="228" font-size="11.5" fill="#475569" text-anchor="middle">Weighted geometric mean</text>
+  <text x="712" y="252" font-size="11.5" font-weight="600" fill="#0f766e" text-anchor="middle">w(XGB) &gt; w(RF) &gt; w(MNL)</text>
+  <text x="712" y="272" font-size="10.5" fill="#64748b" text-anchor="middle">weights via exhaustive grid search</text>
+
+  <!-- Output arrow -->
+  <path d="M 712 290 L 712 340" fill="none" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- ===== Output ===== -->
+  <rect x="592" y="344" width="240" height="64" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="712" y="370" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle">Final choice probabilities</text>
+  <text x="712" y="390" font-size="11.5" fill="#475569" text-anchor="middle">1st runner-up over 15 submissions</text>
+</svg>
